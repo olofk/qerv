@@ -9,10 +9,10 @@ filesets:
       - rtl/serv_bufreg.v
       - rtl/serv_bufreg2.v
       - rtl/serv_alu.v
-      - rtl/serv_csr.v
+      - rtl/qerv_csr.v
       - rtl/serv_ctrl.v
       - rtl/serv_decode.v
-      - rtl/serv_immdec.v
+      - rtl/qerv_immdec.v
       - rtl/serv_mem_if.v
       - rtl/serv_rf_if.v
       - rtl/serv_rf_ram_if.v

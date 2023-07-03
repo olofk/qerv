@@ -174,18 +174,19 @@ module serv_state
        just need to check if cnt_r is not zero to see if the counter is
        currently running
        */
-      o_cnt <= o_cnt + {2'd0,cnt_r[3]};
-      cnt_r <= {cnt_r[2:0],(cnt_r[3] & !o_cnt_done) | (i_rf_ready & !o_cnt_en)};
+      if (i_rf_ready) o_cnt_en <= 1; else
+      if (o_cnt_done) o_cnt_en <= 0;
+      o_cnt <= o_cnt + { 2'b0, o_cnt_en };
       if (i_rst) begin
 	 if (RESET_STRATEGY != "NONE") begin
 	    o_cnt   <= 3'd0;
-	    cnt_r <= 4'b0000;
+	    o_cnt_en <= 1'b0;
 	 end
       end
    end
 
-   always @(*)
-     o_cnt_en = |cnt_r;
+  always @(*)
+     cnt_r = 4'b1111;
 
    assign o_ctrl_trap = WITH_CSR & (i_e_op | i_new_irq | misalign_trap_sync);
 

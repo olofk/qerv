@@ -118,7 +118,7 @@ module serv_decode
    //Write to RD
    //True for OP-IMM, AUIPC, OP, LUI, SYSTEM, JALR, JAL, LOAD
    //False for STORE, BRANCH, MISC-MEM
-   wire co_rd_op = (opcode[2] |
+   wire co_rd_op = ((opcode[2] & !opcode[1]) |
                      (!opcode[2] & opcode[4] & opcode[0]) |
                      (!opcode[2] & !opcode[3] & !opcode[0]));
 

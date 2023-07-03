@@ -28,7 +28,7 @@ module serv_rf_top
      */
     parameter RESET_STRATEGY = "MINI",
     parameter WITH_CSR = 1,
-    parameter RF_WIDTH = 2,
+    parameter RF_WIDTH = 8,
 	parameter RF_L2D   = $clog2((32+(WITH_CSR*4))*32/RF_WIDTH))
   (
    input wire 	      clk,
@@ -86,13 +86,13 @@ module serv_rf_top
    wire [4+WITH_CSR:0] wreg1;
    wire 	      wen0;
    wire 	      wen1;
-   wire 	      wdata0;
-   wire 	      wdata1;
+   wire [RF_WIDTH/2-1:0] wdata0;
+   wire [RF_WIDTH/2-1:0] wdata1;
    wire [4+WITH_CSR:0] rreg0;
    wire [4+WITH_CSR:0] rreg1;
    wire 	      rf_ready;
-   wire 	      rdata0;
-   wire 	      rdata1;
+   wire [RF_WIDTH/2-1:0] rdata0;
+   wire [RF_WIDTH/2-1:0] rdata1;
 
    wire [RF_L2D-1:0]   waddr;
    wire [RF_WIDTH-1:0] wdata;
