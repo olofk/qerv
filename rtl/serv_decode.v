@@ -76,7 +76,9 @@ module serv_decode
    wire co_mdu_op     = MDU & (opcode == 5'b01100) & imm25;
 
    wire co_two_stage_op =
-	~opcode[2] | (funct3[0] & ~funct3[1] & ~opcode[0] & ~opcode[4]) |
+	(opcode[3] & ~opcode[2]) |
+	(~opcode[1] & ~opcode[2]) |
+	(funct3[0] & ~funct3[1] & ~opcode[0] & ~opcode[4]) |
 	(funct3[1] & ~funct3[2] & ~opcode[0] & ~opcode[4]) | co_mdu_op;
    wire co_shift_op = (opcode[2] & ~funct3[1]) & !co_mdu_op;
    wire co_slt_or_branch = (opcode[4] | (funct3[1] & opcode[2]) | (imm30 & opcode[2] & opcode[3] & ~funct3[2])) & !co_mdu_op;
