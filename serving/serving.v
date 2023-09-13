@@ -36,6 +36,7 @@ module serving
    parameter memsize = 8192;
    parameter RESET_STRATEGY = "NONE";
    parameter WITH_CSR = 1;
+   parameter W=4; //FIXME
    localparam regs = 32+WITH_CSR*4;
 
    localparam rf_width = 8;
@@ -158,18 +159,19 @@ module serving
    wire [$clog2(regs)-1:0] wreg1;
    wire 		   wen0;
    wire 		   wen1;
-   wire 		   wdata0;
-   wire 		   wdata1;
+   wire [W-1:0]		   wdata0;
+   wire [W-1:0]		   wdata1;
    wire [$clog2(regs)-1:0] rreg0;
    wire [$clog2(regs)-1:0] rreg1;
    wire 		   rf_ready;
-   wire 		   rdata0;
-   wire 		   rdata1;
+   wire [W-1:0]		   rdata0;
+   wire [W-1:0]		   rdata1;
 
 
    serv_rf_ram_if
      #(.width    (rf_width),
        .reset_strategy (RESET_STRATEGY),
+       .BITS_PER_CYCLE (W),
        .csr_regs (WITH_CSR*4))
    rf_ram_if
      (.i_clk    (i_clk),
