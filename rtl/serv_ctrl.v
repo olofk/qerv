@@ -3,7 +3,7 @@ module serv_ctrl
   #(parameter RESET_STRATEGY = "MINI",
     parameter RESET_PC = 32'd0,
     parameter WITH_CSR = 1,
-    parameter W = 4,
+    parameter W = 1,
     parameter B = W-1
   )
   (

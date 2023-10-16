@@ -1,7 +1,7 @@
 `default_nettype none
 module serv_alu
   #(
-   parameter W = 4,//FIXME
+   parameter W = 1,
    parameter B = W-1
   )
   (

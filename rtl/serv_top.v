@@ -426,7 +426,8 @@ module serv_top
    serv_ctrl
      #(.RESET_PC (RESET_PC),
        .RESET_STRATEGY (RESET_STRATEGY),
-       .WITH_CSR (WITH_CSR))
+       .WITH_CSR (WITH_CSR),
+       .W (W))
    ctrl
      (
       .clk        (clk),
@@ -452,7 +453,7 @@ module serv_top
       //External
       .o_ibus_adr (wb_ibus_adr));
 
-   serv_alu alu
+   serv_alu #(.W (W)) alu
      (
       .clk        (clk),
       //State
