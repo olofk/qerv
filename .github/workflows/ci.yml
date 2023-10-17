@@ -26,7 +26,10 @@ jobs:
         echo "SERV=$GITHUB_WORKSPACE/serv" >> $GITHUB_ENV
 
     - name: setup workspace
-      run: fusesoc library add serv $SERV
+      run: fusesoc library add serv https://github.com/olofk/serv
+
+    - name: setup workspace2
+      run: fusesoc library add qerv $SERV
 
     - name: Setup SAIL-RISCV Model
       run: |
