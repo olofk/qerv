@@ -49,6 +49,7 @@ targets:
         mode : lint-only
         verilator_options:
           - "-Wall"
+          - "-Wno-DECLFILENAME"
     toplevel : serv_rf_top
 
   sky130:

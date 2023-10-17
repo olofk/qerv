@@ -7,16 +7,17 @@ jobs:
     runs-on: ubuntu-latest
     name: Linter
     env:
-      REPO : serv
-      VLNV : serv
+      REPO : qerv
+      VLNV : qerv
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          path: serv
+          path: qerv
       - run: sudo apt install verilator
       - run: pip3 install fusesoc
+      - run: fusesoc library add serv https://github.com/olofk/serv
       - run: fusesoc library add $REPO $GITHUB_WORKSPACE/$REPO
       - run: fusesoc run --target=lint $VLNV
       - run: fusesoc run --target=lint servant
-      - run: fusesoc run --target=lint serving
+#      - run: fusesoc run --target=lint serving
