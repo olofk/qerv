@@ -1,4 +1,4 @@
-module serv_bufreg #(
+module qerv_bufreg #(
       parameter [0:0] MDU = 0,
       parameter BITS_PER_CYCLE = 4,
       parameter LB = $clog2(BITS_PER_CYCLE)

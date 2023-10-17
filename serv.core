@@ -1,6 +1,6 @@
 CAPI=2:
 
-name : ::serv:1.2.1
+name : ::qerv:1.2.1
 
 filesets:
   core:
@@ -16,13 +16,11 @@ filesets:
       - rtl/serv_mem_if.v
       - rtl/serv_rf_if.v
       - rtl/serv_rf_ram_if.v
-      - rtl/serv_rf_ram.v
       - rtl/serv_state.v
       - rtl/serv_top.v
       - rtl/serv_rf_top.v
-      - rtl/serv_aligner.v
-      - rtl/serv_compdec.v
     file_type : verilogSource
+    depend: [serv]
 
   openlane:
     files:

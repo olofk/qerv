@@ -34,7 +34,7 @@ filesets:
       - "!tool_quartus? (servant/servant_ram.v)"
       - servant/servant.v
     file_type : verilogSource
-    depend : [serv, "mdu? (mdu)"]
+    depend : [qerv, "mdu? (mdu)"]
 
   verilator_tb:
     files:

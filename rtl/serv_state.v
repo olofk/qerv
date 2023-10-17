@@ -1,4 +1,4 @@
-module serv_state
+module qerv_state
   #(parameter RESET_STRATEGY = "MINI",
     parameter [0:0] WITH_CSR = 1,
     parameter [0:0] ALIGN =0,

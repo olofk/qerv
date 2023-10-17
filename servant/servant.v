@@ -155,7 +155,7 @@ module servant
       .o_wb_rdt (wb_gpio_rdt),
       .o_gpio   (q));
 
-   serv_rf_top
+   qerv_rf_top
      #(.RESET_PC (32'h0000_0000),
        .RESET_STRATEGY (reset_strategy),
   `ifdef MDU

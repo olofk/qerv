@@ -1,6 +1,6 @@
 `default_nettype none
 
-module serv_top
+module qerv_top
   #(parameter WITH_CSR = 1,
     parameter	    W = 4,
     parameter	    B = W-1,
@@ -222,7 +222,7 @@ module serv_top
       end
    endgenerate
 
-   serv_state
+   qerv_state
      #(.RESET_STRATEGY (RESET_STRATEGY),
        .WITH_CSR (WITH_CSR[0:0]),
        .MDU(MDU),
@@ -280,7 +280,7 @@ module serv_top
       .i_rf_ready     (i_rf_ready),
       .o_rf_rd_en     (rd_en));
 
-   serv_decode
+   qerv_decode
      #(.PRE_REGISTER (PRE_REGISTER),
        .MDU(MDU))
    decode
@@ -368,7 +368,7 @@ module serv_top
 
    wire [1:0]  shift_counter_lsb;
 
-   serv_bufreg
+   qerv_bufreg
       #(.MDU(MDU))
    bufreg
      (
@@ -396,7 +396,7 @@ module serv_top
       .o_dbus_adr (o_dbus_adr),
       .o_ext_rs1  (o_ext_rs1));
 
-   serv_bufreg2 bufreg2
+   qerv_bufreg2 bufreg2
      (
       .i_clk        (clk),
       //State
@@ -423,7 +423,7 @@ module serv_top
       .i_load       (dbus_ack),
       .i_dat        (dbus_rdt));
 
-   serv_ctrl
+   qerv_ctrl
      #(.RESET_PC (RESET_PC),
        .RESET_STRATEGY (RESET_STRATEGY),
        .WITH_CSR (WITH_CSR),
@@ -453,7 +453,7 @@ module serv_top
       //External
       .o_ibus_adr (wb_ibus_adr));
 
-   serv_alu #(.W (W)) alu
+   qerv_alu #(.W (W)) alu
      (
       .clk        (clk),
       //State
@@ -472,7 +472,7 @@ module serv_top
       .i_buf      (bufreg_q),
       .o_rd       (alu_rd));
 
-   serv_rf_if
+   qerv_rf_if
      #(.WITH_CSR (WITH_CSR), .W(W))
    rf_if
      (//RF interface
@@ -521,7 +521,7 @@ module serv_top
       //CSR read port
       .o_csr       (rf_csr_out));
 
-   serv_mem_if
+   qerv_mem_if
      #(.WITH_CSR (WITH_CSR[0:0]),
        .W (W))
    mem_if

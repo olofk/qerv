@@ -1,5 +1,5 @@
 `default_nettype none
-module serv_rf_ram_if
+module qerv_rf_ram_if
   #(//Data width. Adjust to preferred width of SRAM data interface
     parameter width=8,
 

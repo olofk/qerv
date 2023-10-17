@@ -1,6 +1,6 @@
 `default_nettype none
 
-module serv_rf_top
+module qerv_rf_top
   #(parameter RESET_PC = 32'd0,
     /*  COMPRESSED=1: Enable the compressed decoder and allowed misaligned jump of pc
         COMPRESSED=0: Disable the compressed decoder and does not allow the misaligned jump of pc
@@ -101,7 +101,7 @@ module serv_rf_top
    wire 	       ren;
    wire [RF_WIDTH-1:0] rdata;
 
-   serv_rf_ram_if
+   qerv_rf_ram_if
      #(.width    (RF_WIDTH),
        .reset_strategy (RESET_STRATEGY),
        .csr_regs (CSR_REGS))
@@ -140,7 +140,7 @@ module serv_rf_top
       .i_ren    (ren),
       .o_rdata (rdata));
 
-   serv_top
+   qerv_top
      #(.RESET_PC (RESET_PC),
        .PRE_REGISTER (PRE_REGISTER),
        .RESET_STRATEGY (RESET_STRATEGY),
