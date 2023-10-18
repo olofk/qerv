@@ -60,7 +60,7 @@ module qerv_rf_ram_if
    wire [4:0] 	     wcnt;
 
    reg [width-1:0]   wdata0_r;
-   reg [width+width/2-1:0]   wdata1_r;
+   reg [width+BITS_PER_CYCLE-1:0]   wdata1_r;
 
    reg 		     wen0_r;
    reg 		     wen1_r;
