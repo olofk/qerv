@@ -16,7 +16,7 @@ module qerv_rf_ram_if
     parameter raw=$clog2(32+csr_regs), //Register address width
     parameter l2w=$clog2(width), //log2 of width
     parameter aw=5+raw-l2w, //Address width
-    parameter BITS_PER_CYCLE = 4,
+    parameter BITS_PER_CYCLE = 1,
     parameter LOG_BITS_PER_CYCLE = $clog2(BITS_PER_CYCLE)
   ) 
   (
@@ -100,8 +100,8 @@ module qerv_rf_ram_if
 	 wen1_r    <= i_wen1;
       end
 
-      wdata0_r  <= {i_wdata0,wdata0_r[width-1:width/2]};
-      wdata1_r  <= {i_wdata1,wdata1_r[width+width/2-1:width/2]};
+      wdata0_r  <= {i_wdata0,wdata0_r[width-1:BITS_PER_CYCLE]};
+      wdata1_r  <= {i_wdata1,wdata1_r[width+BITS_PER_CYCLE-1:BITS_PER_CYCLE]};
 
    end
 
@@ -120,7 +120,7 @@ module qerv_rf_ram_if
    endgenerate
 
    reg [width-1:0]  rdata0;
-   reg [width/2-1:0]  rdata1;
+   reg [width-1-BITS_PER_CYCLE:0]  rdata1;
 
    reg 		    rgate;
 
