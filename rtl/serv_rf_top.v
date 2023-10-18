@@ -104,7 +104,9 @@ module qerv_rf_top
    qerv_rf_ram_if
      #(.width    (RF_WIDTH),
        .reset_strategy (RESET_STRATEGY),
-       .csr_regs (CSR_REGS))
+       .csr_regs (CSR_REGS),
+       .BITS_PER_CYCLE(4)
+      )
    rf_ram_if
      (.i_clk    (clk),
       .i_rst    (i_rst),
