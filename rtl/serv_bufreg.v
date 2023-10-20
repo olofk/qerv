@@ -45,7 +45,7 @@ module qerv_bufreg #(
 
    wire 	      clr_lsb = i_cnt0 & i_clr_lsb;
 
-   assign {c,q} = {1'b0,(i_rs1_en ? i_rs1 : zeroB)} + {1'b0,((i_imm_en) ? (clr_lsb ? {i_imm[3:1], 1'd0} : i_imm) : zeroB)} + { zeroB, c_r };
+   assign {c,q} = {1'b0,(i_rs1_en ? i_rs1 : zeroB)} + {1'b0,((i_imm_en) ? (clr_lsb ? (i_imm[BITS_PER_CYCLE-1:0] & 32'hfffffffe) : i_imm) : zeroB)} + { zeroB, c_r };
 
    always @(posedge i_clk) begin
       //Make sure carry is cleared before loading new data
