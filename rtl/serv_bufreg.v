@@ -1,6 +1,6 @@
 module qerv_bufreg #(
       parameter [0:0] MDU = 0,
-      parameter BITS_PER_CYCLE = 1,
+      parameter BITS_PER_CYCLE = 4,
       parameter LB = $clog2(BITS_PER_CYCLE)
 )(
    input wire 	      i_clk,
@@ -45,7 +45,15 @@ module qerv_bufreg #(
 
    wire 	      clr_lsb = i_cnt0 & i_clr_lsb;
 
-   assign {c,q} = {1'b0,(i_rs1_en ? i_rs1 : zeroB)} + {1'b0,((i_imm_en) ? (clr_lsb ? (i_imm[BITS_PER_CYCLE-1:0] & 32'hfffffffe) : i_imm) : zeroB)} + { zeroB, c_r };
+   wire [BITS_PER_CYCLE-1:0] mask;
+   generate
+     if (BITS_PER_CYCLE == 4)
+        assign  mask = 4'b1110;
+     else if (BITS_PER_CYCLE == 1)
+	assign  mask = 0;
+   endgenerate
+
+   assign {c,q} = {1'b0,(i_rs1_en ? i_rs1 : zeroB)} + {1'b0,((i_imm_en) ? (clr_lsb ? (i_imm & mask) : i_imm) : zeroB)} + { zeroB, c_r };
 
    always @(posedge i_clk) begin
       //Make sure carry is cleared before loading new data
