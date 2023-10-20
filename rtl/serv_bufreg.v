@@ -1,6 +1,6 @@
 module qerv_bufreg #(
       parameter [0:0] MDU = 0,
-      parameter BITS_PER_CYCLE = 4,
+      parameter BITS_PER_CYCLE = 1,
       parameter LB = $clog2(BITS_PER_CYCLE)
 )(
    input wire 	      i_clk,
@@ -54,7 +54,7 @@ module qerv_bufreg #(
         next_shifted <= 0;
 
       if (i_en) begin
-	data <= {i_init ? q : (i_sh_signed ? {data[31], data[31], data[31], data[31]} : zeroB), data[31:BITS_PER_CYCLE]};
+	data <= {i_init ? q : (i_sh_signed ? {BITS_PER_CYCLE{data[31]}} : zeroB), data[31:BITS_PER_CYCLE]};
         next_shifted <= ({ zeroB, data[BITS_PER_CYCLE-1:0]} << shift_amount);
         if (i_cnt0) lsb <= q[1:0];
       end

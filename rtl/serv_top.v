@@ -369,7 +369,9 @@ module qerv_top
    wire [2:0]  shift_counter_lsb;
 
    qerv_bufreg
-      #(.MDU(MDU))
+      #(.MDU(MDU),
+	.BITS_PER_CYCLE(W)
+      )
    bufreg
      (
       .i_clk    (clk),
