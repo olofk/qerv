@@ -62,7 +62,7 @@ module qerv_bufreg2
 
    assign o_sh_done = dat_shamt[5];
    assign o_sh_done_r = dat[5];
-   assign o_shift_counter_lsb = (0 == LB) ? 0 : dat[LB:0];
+   assign o_shift_counter_lsb = ((1 << LB) - 1) & dat[LB:0]; // clear dat[LB] as a workaround for LB==0 
 
    assign o_q =
 	       ((i_lsb == 2'd3) ? dat[23+BITS_PER_CYCLE:24] :

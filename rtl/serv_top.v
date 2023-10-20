@@ -415,7 +415,7 @@ module qerv_top
       //Data
       .i_rs2        (rs2),
       .i_imm        (imm),
-      .i_shift_counter_lsb({1'b0, shift_counter_lsb}),
+      .i_shift_counter_lsb(shift_counter_lsb),
       .o_op_b       (op_b),
       .o_shift_counter_lsb(shift_counter_lsb),
       .o_q          (bufreg2_q),
