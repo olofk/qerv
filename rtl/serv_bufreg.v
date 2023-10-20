@@ -21,7 +21,8 @@ module qerv_bufreg #(
    //Data
    input wire [BITS_PER_CYCLE-1:0] i_rs1,
    input wire [BITS_PER_CYCLE-1:0] i_imm,
-   input wire [LB-1:0]  i_shift_counter_lsb,
+   // i_shift_counter_lsb[LB] must be zero to support the case LB=0
+   input wire [LB:0]  i_shift_counter_lsb,
    output wire [BITS_PER_CYCLE-1:0] o_q,
    //External
    output wire [31:0] o_dbus_adr,
@@ -38,8 +39,8 @@ module qerv_bufreg #(
    reg [1:0]            lsb;
    wire [LB:0]      shift_counter_rev = BITS_PER_CYCLE - i_shift_counter_lsb;
 
-   wire [LB-1:0] shift_amount = i_shift_op ? (
-       i_right_shift_op ? (i_shift_counter_lsb == 2'b00 ? 2'b00 : (shift_counter_rev[LB-1:0])) : i_shift_counter_lsb
+   wire [LB:0] shift_amount = i_shift_op ? (
+       i_right_shift_op ? (i_shift_counter_lsb == 00 ? 0 : (shift_counter_rev[LB:0])) : i_shift_counter_lsb
    ) : 0;
 
    wire 	      clr_lsb = i_cnt0 & i_clr_lsb;

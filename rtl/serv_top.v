@@ -392,7 +392,7 @@ module qerv_top
       //Data
       .i_rs1    (rs1),
       .i_imm    (imm),
-      .i_shift_counter_lsb(shift_counter_lsb[1:0]),
+      .i_shift_counter_lsb({1'b0, shift_counter_lsb[1:0]}),
       .o_q      (bufreg_q),
       //External
       .o_dbus_adr (o_dbus_adr),
