@@ -13,6 +13,8 @@ module qerv_ctrl
    input wire 	     i_pc_en,
    input wire 	     i_cnt12to31,
    input wire 	     i_cnt0,
+   input wire        i_cnt1,
+   input wire 	     i_cnt2,
    input wire 	     i_cnt03,
    //Control
    input wire 	     i_jump,
@@ -50,7 +52,12 @@ module qerv_ctrl
 
   /*  If i_iscomp=1: increment pc by 2 else increment pc by 4  */
 
+generate
+if (W == 1)
+   assign plus_4        = i_iscomp ? i_cnt1 : i_cnt2;
+else if (W == 4)
    assign plus_4        = (i_cnt03) ? (i_iscomp ? 2 : 4) : 0;
+endgenerate
 
    assign o_bad_pc = pc_plus_offset_aligned;
 
@@ -58,7 +65,7 @@ module qerv_ctrl
 
    generate
       if (|WITH_CSR)
-	 assign new_pc = i_trap ? (i_csr_pc & {3'b111,!i_cnt03}) : i_jump ? pc_plus_offset_aligned : pc_plus_4;
+	 assign new_pc = i_trap ? (i_csr_pc & {{B{1'b1}},!i_cnt03}) : i_jump ? pc_plus_offset_aligned : pc_plus_4;
       else
 	assign new_pc = i_jump ? pc_plus_offset_aligned : pc_plus_4;
    endgenerate
@@ -69,11 +76,11 @@ module qerv_ctrl
    assign {pc_plus_offset_cy,pc_plus_offset} = offset_a+offset_b+pc_plus_offset_cy_r_w;
 
    generate
-      if (W>1) begin
+   if (W>1) begin
 	 assign pc_plus_offset_aligned[B:1] = pc_plus_offset[B:1];
 	 assign pc_plus_offset_cy_r_w[B:1] = {B{1'b0}};
 	 assign pc_plus_4_cy_r_w[B:1] = {B{1'b0}};
-      end
+   end
    endgenerate
 
    assign pc_plus_offset_aligned[0] = pc_plus_offset[0] & !i_cnt0;
