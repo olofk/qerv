@@ -366,7 +366,7 @@ module qerv_top
       .i_wb_en      (wb_ibus_ack),
       .i_wb_rdt     (i_wb_rdt[31:7]));
 
-   wire [1:0]  shift_counter_lsb;
+   wire [2:0]  shift_counter_lsb;
 
    qerv_bufreg
       #(.MDU(MDU))
@@ -390,7 +390,7 @@ module qerv_top
       //Data
       .i_rs1    (rs1),
       .i_imm    (imm),
-      .i_shift_counter_lsb(shift_counter_lsb),
+      .i_shift_counter_lsb(shift_counter_lsb[1:0]),
       .o_q      (bufreg_q),
       //External
       .o_dbus_adr (o_dbus_adr),
@@ -415,7 +415,7 @@ module qerv_top
       //Data
       .i_rs2        (rs2),
       .i_imm        (imm),
-      .i_shift_counter_lsb(shift_counter_lsb),
+      .i_shift_counter_lsb({1'b0, shift_counter_lsb}),
       .o_op_b       (op_b),
       .o_shift_counter_lsb(shift_counter_lsb),
       .o_q          (bufreg2_q),
