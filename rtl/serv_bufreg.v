@@ -61,20 +61,25 @@ module qerv_bufreg #(
 
       if (i_cnt0)
         next_shifted <= 0;
+      if (i_en)
+              next_shifted <= ({ zeroB, data[BITS_PER_CYCLE-1:0]} << shift_amount);
 
       if (i_en)
         data <= {i_init ? q : (i_sh_signed ? {BITS_PER_CYCLE{data[31]}} : zeroB), data[31:BITS_PER_CYCLE]};
+   end
 
-    if (BITS_PER_CYCLE == 1) begin
+   generate
+    if (BITS_PER_CYCLE == 1)
+      always @(posedge i_clk) begin
         if (i_init ? (i_cnt0 | i_cnt1) : i_en)
             lsb <= {i_init ? q : data[2],lsb[1]};
-    end else if (BITS_PER_CYCLE == 4) begin
-        if (i_en) begin
-                next_shifted <= ({ zeroB, data[BITS_PER_CYCLE-1:0]} << shift_amount);
-                if (i_cnt0) lsb <= q[1:0];
-        end
-    end
-   end
+      end
+    else if (BITS_PER_CYCLE == 4)
+      always @(posedge i_clk) begin
+        if (i_en)
+            if (i_cnt0) lsb <= q[1:0];
+      end
+   endgenerate
 
    assign o_q = i_en ? ((data[BITS_PER_CYCLE-1:0] << shift_amount) | next_shifted[2*BITS_PER_CYCLE-1:BITS_PER_CYCLE]) : zeroB;
    assign o_dbus_adr = {data[31:2], 2'b00};
