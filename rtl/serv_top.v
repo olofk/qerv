@@ -439,6 +439,8 @@ module qerv_top
       .i_pc_en    (ctrl_pc_en),
       .i_cnt12to31 (cnt12to31),
       .i_cnt0     (cnt0),
+      .i_cnt1     (0),
+      .i_cnt2     (0),
       .i_cnt03    (cnt0to3),
       //Control
       .i_jump     (jump),
