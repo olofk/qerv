@@ -1,6 +1,6 @@
 module qerv_bufreg #(
       parameter [0:0] MDU = 0,
-      parameter BITS_PER_CYCLE = 4,
+      parameter BITS_PER_CYCLE = 1,
       parameter LB = $clog2(BITS_PER_CYCLE)
 )(
    input wire 	      i_clk,
@@ -17,7 +17,7 @@ module qerv_bufreg #(
    input wire 	      i_clr_lsb,
    input wire         i_shift_op,
    input wire         i_right_shift_op,
-   input wire 	      i_sh_signed, 
+   input wire 	      i_sh_signed,
    //Data
    input wire [BITS_PER_CYCLE-1:0] i_rs1,
    input wire [BITS_PER_CYCLE-1:0] i_imm,
@@ -62,16 +62,23 @@ module qerv_bufreg #(
       if (i_cnt0)
         next_shifted <= 0;
 
-      if (i_en) begin
-	data <= {i_init ? q : (i_sh_signed ? {BITS_PER_CYCLE{data[31]}} : zeroB), data[31:BITS_PER_CYCLE]};
-        next_shifted <= ({ zeroB, data[BITS_PER_CYCLE-1:0]} << shift_amount);
-        if (i_cnt0) lsb <= q[1:0];
-      end
+      if (i_en)
+        data <= {i_init ? q : (i_sh_signed ? {BITS_PER_CYCLE{data[31]}} : zeroB), data[31:BITS_PER_CYCLE]};
+
+    if (BITS_PER_CYCLE == 1) begin
+        if (i_init ? (i_cnt0 | i_cnt1) : i_en)
+            lsb <= {i_init ? q : data[2],lsb[1]};
+    end else if (BITS_PER_CYCLE == 4) begin
+        if (i_en) begin
+                next_shifted <= ({ zeroB, data[BITS_PER_CYCLE-1:0]} << shift_amount);
+                if (i_cnt0) lsb <= q[1:0];
+        end
+    end
    end
 
    assign o_q = i_en ? ((data[BITS_PER_CYCLE-1:0] << shift_amount) | next_shifted[2*BITS_PER_CYCLE-1:BITS_PER_CYCLE]) : zeroB;
    assign o_dbus_adr = {data[31:2], 2'b00};
-   assign o_ext_rs1  = {o_dbus_adr[31:2],lsb};
+   assign o_ext_rs1  = data;
    assign o_lsb = (MDU & i_mdu_op) ? 2'b00 : lsb;
 
 endmodule
