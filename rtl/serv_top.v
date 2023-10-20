@@ -226,7 +226,9 @@ module qerv_top
      #(.RESET_STRATEGY (RESET_STRATEGY),
        .WITH_CSR (WITH_CSR[0:0]),
        .MDU(MDU),
-       .ALIGN(ALIGN))
+       .ALIGN(ALIGN),
+       .W(W)
+   )
    state
      (
       .i_clk (clk),
