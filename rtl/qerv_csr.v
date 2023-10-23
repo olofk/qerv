@@ -1,6 +1,10 @@
 `default_nettype none
 module qerv_csr
-  #(parameter RESET_STRATEGY = "MINI")
+  #(
+    parameter RESET_STRATEGY = "MINI",
+    parameter W = 1,
+    parameter B = W-1
+  )
   (
    input wire 	    i_clk,
    input wire 	    i_rst,
@@ -26,11 +30,11 @@ module qerv_csr
    input wire 	    i_mret,
    input wire 	    i_csr_d_sel,
    //Data
-   input wire 	[3:0]    i_rf_csr_out,
-   output wire 	[3:0]    o_csr_in,
-   input wire 	[3:0]    i_csr_imm,
-   input wire 	[3:0]    i_rs1,
-   output wire 	[3:0]    o_q);
+   input wire 	[B:0]    i_rf_csr_out,
+   output wire 	[B:0]    o_csr_in,
+   input wire 	[B:0]    i_csr_imm,
+   input wire 	[B:0]    i_rs1,
+   output wire 	[B:0]    o_q);
 
    localparam [1:0]
      CSR_SOURCE_CSR = 2'b00,
@@ -44,32 +48,32 @@ module qerv_csr
 
    reg 		mcause31;
    reg [3:0] 	mcause3_0;
-   wire [3:0]	mcause;
+   wire [B:0]	mcause;
 
-   wire [3:0]	csr_in;
-   wire [3:0]	csr_out;
+   wire [B:0]	csr_in;
+   wire [B:0]	csr_out;
 
    reg 		timer_irq_r;
 
-   wire [3:0]	d = i_csr_d_sel ? i_csr_imm : i_rs1;
+   wire [B:0]	d = i_csr_d_sel ? i_csr_imm : i_rs1;
 
    assign csr_in = (i_csr_source == CSR_SOURCE_EXT) ? d :
 		   (i_csr_source == CSR_SOURCE_SET) ? csr_out | d :
 		   (i_csr_source == CSR_SOURCE_CLR) ? csr_out & ~d :
 		   (i_csr_source == CSR_SOURCE_CSR) ? csr_out :
-		   4'bxxxx;
+		   {W{1'bx}};
 
-   assign csr_out = ({i_mstatus_en & mstatus_mie & i_cnt3 & i_en,3'b000}) |
+   assign csr_out = ({i_mstatus_en & mstatus_mie & i_cnt3 & i_en,{B{1'b0}}}) |
 		    i_rf_csr_out |
-		    ({4{i_mcause_en & i_en}} & mcause);
+		    ({W{i_mcause_en & i_en}} & mcause);
 
    assign o_q = csr_out;
 
    wire 	timer_irq = i_mtip & mstatus_mie & mie_mtie;
 
-   assign mcause = i_cnt0to3 ? mcause3_0 : //[3:0]
-		   i_cnt_done ? {mcause31,3'b000} //[31]
-		   : 4'b0000;
+   assign mcause = i_cnt0to3 ? mcause3_0[B:0] : //[3:0]
+		   i_cnt_done ? {mcause31,{B{1'b0}}} //[31]
+		   : {W{1'b0}};
 
    assign o_csr_in = csr_in;
 
@@ -80,7 +84,7 @@ module qerv_csr
       end
 
       if (i_mie_en & i_cnt7)
-	mie_mtie <= csr_in[3];
+	mie_mtie <= csr_in[B];
 
       /*
        The mie bit in mstatus gets updated under three conditions
@@ -93,7 +97,7 @@ module qerv_csr
        These conditions are all mutually exclusibe
        */
       if ((i_trap & i_cnt_done) | i_mstatus_en & i_cnt3 & i_en | i_mret)
-	mstatus_mie <= !i_trap & (i_mret ?  mstatus_mpie : csr_in[3]);
+	mstatus_mie <= !i_trap & (i_mret ?  mstatus_mpie : csr_in[B]);
 
       /*
        Note: To save resources mstatus_mpie (mstatus bit 7) is not
@@ -125,13 +129,13 @@ module qerv_csr
        ctrl => 0000 (jump=0)
        */
       if (i_mcause_en & i_en & i_cnt0to3 | (i_trap & i_cnt_done)) begin
-	 mcause3_0[3] <= (i_e_op & !i_ebreak) | (!i_trap & csr_in[3]);
+	 mcause3_0[3] <= (i_e_op & !i_ebreak) | (!i_trap & csr_in[B]);
 	 mcause3_0[2] <= o_new_irq | i_mem_op | (!i_trap & csr_in[2]);
 	 mcause3_0[1] <= o_new_irq | i_e_op | (i_mem_op & i_mem_cmd) | (!i_trap & csr_in[1]);
 	 mcause3_0[0] <= o_new_irq | i_e_op | (!i_trap & csr_in[0]);
       end
       if (i_mcause_en & i_cnt_done | i_trap)
-	mcause31 <= i_trap ? o_new_irq : csr_in[3];
+	mcause31 <= i_trap ? o_new_irq : csr_in[B];
       if (i_rst)
 	if (RESET_STRATEGY != "NONE") begin
 	   o_new_irq <= 1'b0;
