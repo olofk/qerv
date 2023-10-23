@@ -4,6 +4,7 @@ module qerv_top
   #(parameter WITH_CSR = 1,
     parameter	    W = 4,
     parameter	    B = W-1,
+    parameter LB = $clog2(W),
     parameter PRE_REGISTER = 1,
     parameter RESET_STRATEGY = "MINI",
     parameter RESET_PC = 32'd0,
@@ -368,7 +369,7 @@ module qerv_top
       .i_wb_en      (wb_ibus_ack),
       .i_wb_rdt     (i_wb_rdt[31:7]));
 
-   wire [2:0]  shift_counter_lsb;
+   wire [LB:0]  shift_counter_lsb;
 
    qerv_bufreg
       #(.MDU(MDU),
@@ -394,7 +395,7 @@ module qerv_top
       //Data
       .i_rs1    (rs1),
       .i_imm    (imm),
-      .i_shift_counter_lsb({1'b0, shift_counter_lsb[1:0]}),
+      .i_shift_counter_lsb(shift_counter_lsb),
       .o_q      (bufreg_q),
       //External
       .o_dbus_adr (o_dbus_adr),
@@ -441,8 +442,8 @@ module qerv_top
       .i_pc_en    (ctrl_pc_en),
       .i_cnt12to31 (cnt12to31),
       .i_cnt0     (cnt0),
-      .i_cnt1     (0),
-      .i_cnt2     (0),
+      .i_cnt1     (cnt1),
+      .i_cnt2     (cnt2),
       .i_cnt03    (cnt0to3),
       //Control
       .i_jump     (jump),
