@@ -28,7 +28,8 @@ module qerv_rf_top
      */
     parameter RESET_STRATEGY = "MINI",
     parameter WITH_CSR = 1,
-    parameter RF_WIDTH = 8,
+    parameter W        = 4,
+    parameter RF_WIDTH = W * 2,
 	parameter RF_L2D   = $clog2((32+(WITH_CSR*4))*32/RF_WIDTH))
   (
    input wire 	      clk,
@@ -105,7 +106,7 @@ module qerv_rf_top
      #(.width    (RF_WIDTH),
        .reset_strategy (RESET_STRATEGY),
        .csr_regs (CSR_REGS),
-       .BITS_PER_CYCLE(4)
+       .BITS_PER_CYCLE(W)
       )
    rf_ram_if
      (.i_clk    (clk),
@@ -149,7 +150,9 @@ module qerv_rf_top
        .WITH_CSR (WITH_CSR),
        .MDU(MDU),
        .COMPRESSED(COMPRESSED),
-       .ALIGN(ALIGN))
+       .ALIGN(ALIGN),
+       .W(W)
+       )
    cpu
      (
       .clk      (clk),

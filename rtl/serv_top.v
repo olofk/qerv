@@ -2,7 +2,7 @@
 
 module qerv_top
   #(parameter WITH_CSR = 1,
-    parameter	    W = 4,
+    parameter	    W = 1,
     parameter	    B = W-1,
     parameter LB = $clog2(W),
     parameter PRE_REGISTER = 1,
