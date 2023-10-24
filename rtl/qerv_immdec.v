@@ -2,13 +2,13 @@
 `default_nettype none
 module qerv_immdec
   (
-   input wire	     i_clk,
+   input wire 	     i_clk,
    //State
-   input wire	     i_cnt_en,
-   input wire	     i_cnt_done,
+   input wire 	     i_cnt_en,
+   input wire 	     i_cnt_done,
    //Control
    input wire [3:0]  i_immdec_en,
-   input wire	     i_csr_imm_en,
+   input wire 	     i_csr_imm_en,
    input wire [3:0]  i_ctrl,
    output wire [4:0] o_rd_addr,
    output wire [4:0] o_rs1_addr,

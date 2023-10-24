@@ -553,7 +553,7 @@ module qerv_top
 
    generate
       if (|WITH_CSR) begin
-	 qerv_csr // TODO: broken completely
+	 serv_csr // TODO: broken completely
 	   #(
 		   .RESET_STRATEGY (RESET_STRATEGY),
 		   .W(W)
