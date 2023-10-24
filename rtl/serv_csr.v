@@ -1,5 +1,5 @@
 `default_nettype none
-module serv_csr
+module qerv_csr
   #(
     parameter RESET_STRATEGY = "MINI",
     parameter W = 1,
