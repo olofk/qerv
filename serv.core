@@ -14,7 +14,6 @@ filesets:
       - rtl/qerv_immdec.v
       - rtl/serv_rf_if.v
       - rtl/serv_rf_ram_if.v
-      - rtl/serv_state.v
       - rtl/serv_top.v
       - rtl/serv_rf_top.v
     file_type : verilogSource

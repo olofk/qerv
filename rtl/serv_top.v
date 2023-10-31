@@ -223,7 +223,7 @@ module qerv_top
       end
    endgenerate
 
-   qerv_state
+   serv_state
      #(.RESET_STRATEGY (RESET_STRATEGY),
        .WITH_CSR (WITH_CSR[0:0]),
        .MDU(MDU),
