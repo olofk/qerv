@@ -4,9 +4,7 @@ module qerv_rf_if
     parameter W = 1,
     parameter B = W-1
   )
-  (
-   input wire                 clk,
-   //RF Interface
+  (//RF Interface
    input wire 		      i_cnt_en,
    output wire [4+WITH_CSR:0] o_wreg0,
    output wire [4+WITH_CSR:0] o_wreg1,
@@ -48,8 +46,7 @@ module qerv_rf_if
    output wire [B:0] o_rs1,
    //RS2 read port
    input wire [4:0] 	      i_rs2_raddr,
-   output wire [B:0] o_rs2
-  );
+   output wire [B:0] o_rs2);
 
 
    /*
@@ -83,11 +80,8 @@ module qerv_rf_if
     * mtval    100011
     */
 
-   reg [1:0] trap_ff = 2'b00;
-   always @(posedge clk) trap_ff <= {trap_ff[0], i_trap};
-   wire trap_d = i_trap || trap_ff[0] || trap_ff[1];
-   assign o_wreg0 = trap_d ? {6'b100011} : {1'b0,i_rd_waddr};
-   assign o_wreg1 = trap_d ? {6'b100010} : {4'b1000,i_csr_addr};
+   assign o_wreg0 = i_trap ? {6'b100011} : {1'b0,i_rd_waddr};
+   assign o_wreg1 = i_trap ? {6'b100010} : {4'b1000,i_csr_addr};
 
    assign       o_wen0 = i_cnt_en & (i_trap | rd_wen);
    assign       o_wen1 = i_cnt_en & (i_trap | i_csr_en);
@@ -133,8 +127,7 @@ module qerv_rf_if
    end else begin
       wire [B:0] rd = (i_ctrl_rd) |
           i_alu_rd  & {W{i_rd_alu_en}} |
-          i_mem_rd  & {W{i_rd_mem_en}}
-      ;
+          i_mem_rd  & {W{i_rd_mem_en}};
 
       assign 	     o_wdata0 = rd;
       assign	     o_wdata1 = {W{1'b0}};

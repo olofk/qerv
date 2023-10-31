@@ -510,8 +510,7 @@ module qerv_top
    qerv_rf_if
      #(.WITH_CSR (WITH_CSR), .W(W))
    rf_if
-     (.clk         (clk),
-      //RF interface
+     (//RF interface
       .i_cnt_en    (cnt_en),
       .o_wreg0     (o_wreg0),
       .o_wreg1     (o_wreg1),
@@ -591,7 +590,7 @@ module qerv_top
 	    .i_clk        (clk),
 	    .i_rst        (i_rst),
 	    //State
-	    .i_init       (init),
+	    .i_trig_irq   (wb_ibus_ack),
 	    .i_en         (cnt_en),
 	    .i_cnt0to3    (cnt0to3),
 	    .i_cnt3       (cnt3),
