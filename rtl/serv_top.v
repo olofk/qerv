@@ -461,7 +461,7 @@ module qerv_top
       //External
       .o_ibus_adr (wb_ibus_adr));
 
-   qerv_alu #(.W (W)) alu
+   serv_alu #(.W (W)) alu
      (
       .clk        (clk),
       //State
