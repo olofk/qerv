@@ -1,7 +1,9 @@
 `default_nettype none
-module qerv_decode
+module serv_decode
   #(parameter [0:0] PRE_REGISTER = 1,
-    parameter [0:0] MDU = 0)
+    parameter [0:0] MDU = 0,
+    parameter       CHECK_VALIDITY = 1
+  )
   (
    input wire        clk,
    //Input
@@ -61,10 +63,14 @@ module qerv_decode
    //To RF IF
    output reg       o_rd_mem_en,
    output reg       o_rd_csr_en,
-   output reg       o_rd_alu_en);
+   output reg       o_rd_alu_en
+   //output wire      o_valid_instruction
+   );
 
+   reg [31:2] whole;
    reg [4:0] opcode;
    reg [2:0] funct3;
+   reg [6:0] funct7;
    reg        op20;
    reg        op21;
    reg        op22;
@@ -73,6 +79,28 @@ module qerv_decode
    reg       imm25;
    reg       imm30;
 
+   // coded from this table https://github.com/riscv/riscv-opcodes
+   wire co_valid_instruction = 
+     !CHECK_VALIDITY ||
+     /*whole[1:0] == 2'b11 &&*/ (
+       opcode == 5'b01101 || opcode == 5'b00101 || opcode == 5'b11011 || 
+       opcode == 5'b11001 && funct3 == 3'b000 ||
+       opcode == 5'b11000 && funct3 != 3'b010 && funct3 != 3'b011 ||
+       opcode == 5'b00000 && funct3 != 3'b011 && funct3 != 3'b110 && funct3 != 3'b111 ||
+       opcode == 5'b01000 && (funct3 < 3) ||
+       opcode == 5'b00100 && funct3 != 3'b001 && funct3 != 3'b101 ||
+       opcode == 5'b01100 && (funct7 == 7'b0000000 || funct7 == 7'b0100000 && (funct3 == 3'b000 || funct3 == 3'b101)) ||
+       opcode == 5'b00011 && funct3 == 3'b000 ||
+       opcode == 5'b11100 && whole[19:7] == 0 && whole[31:21] == 0 ||
+       opcode == 5'b00100 && (funct3[2:1] == 2'b00 && funct7 == 0 || funct3 == 3'b101 && funct7[4:0] == 0 && funct7[6] == 0) ||
+       whole  == 30'b100000110011xxxxx000xxxxx00011 || 
+       whole  == 30'b000000010000000000000000000011 ||
+       opcode == 5'b00011 && funct3 == 3'b001 ||
+       opcode == 5'b11100 && funct3 != 3'b000 && funct3 != 3'b100 ||
+       opcode == 5'b01100 && funct7 == 7'b0000001 && MDU == 1 ||
+       opcode == 5'b01011 && funct3 == 3'b010 && (funct7[3:2] == 0 || funct7[6:4] == 0) 
+     );
+ 
    wire co_mdu_op     = MDU & (opcode == 5'b01100) & imm25;
 
    wire co_two_stage_op =
@@ -155,8 +183,7 @@ module qerv_decode
     are identified as mret or e_op instructions.
     */
    always @(posedge clk) begin
-      assume(co_ctrl_mret == 1'b0);
-      assume(co_e_op == 1'b0);
+      assume(co_valid_instruction == 1'b1);
    end
 `endif
 
@@ -253,6 +280,8 @@ module qerv_decode
 
          always @(posedge clk) begin
             if (i_wb_en) begin
+	       whole  <= i_wb_rdt;
+	       funct7 <= i_wb_rdt[31:25];
                funct3 <= i_wb_rdt[14:12];
                imm30  <= i_wb_rdt[30];
                imm25  <= i_wb_rdt[25];
@@ -310,11 +339,14 @@ module qerv_decode
             o_rd_csr_en        = co_rd_csr_en;
             o_rd_alu_en        = co_rd_alu_en;
             o_rd_mem_en        = co_rd_mem_en;
+	    //o_valid_instruction= co_valid_instruction;
          end
 
       end else begin
 
          always @(*) begin
+	    whole   = i_wb_rdt;
+	    funct7  = i_wb_rdt[31:25];
             funct3  = i_wb_rdt[14:12];
             imm30   = i_wb_rdt[30];
             imm25   = i_wb_rdt[25];
@@ -372,6 +404,7 @@ module qerv_decode
                o_rd_csr_en        <= co_rd_csr_en;
                o_rd_alu_en        <= co_rd_alu_en;
                o_rd_mem_en        <= co_rd_mem_en;
+	       //o_valid_instruction<= co_valid_instruction;
             end
          end
 

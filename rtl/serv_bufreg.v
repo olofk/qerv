@@ -1,4 +1,4 @@
-module qerv_bufreg #(
+module serv_bufreg #(
       parameter [0:0] MDU = 0,
       parameter BITS_PER_CYCLE = 1,
       parameter LB = $clog2(BITS_PER_CYCLE)
@@ -40,7 +40,7 @@ module qerv_bufreg #(
    wire [LB:0]      shift_counter_rev = BITS_PER_CYCLE - i_shift_counter_lsb;
 
    wire [LB:0] shift_amount = i_shift_op ? (
-       i_right_shift_op ? (i_shift_counter_lsb == 00 ? 0 : (shift_counter_rev[LB:0])) : i_shift_counter_lsb
+       i_right_shift_op ? ((LB == 0) ? 0 : (shift_counter_rev[LB:0])) : i_shift_counter_lsb
    ) : 0;
 
    wire 	      clr_lsb = i_cnt0 & i_clr_lsb;

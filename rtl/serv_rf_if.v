@@ -1,10 +1,12 @@
 `default_nettype none
-module qerv_rf_if
+module serv_rf_if
   #(parameter WITH_CSR = 1,
     parameter W = 1,
     parameter B = W-1
   )
-  (//RF Interface
+  (
+   input wire                 clk,
+   //RF Interface
    input wire 		      i_cnt_en,
    output wire [4+WITH_CSR:0] o_wreg0,
    output wire [4+WITH_CSR:0] o_wreg1,
@@ -81,8 +83,11 @@ module qerv_rf_if
     * mtval    100011
     */
 
-   assign o_wreg0 = i_trap ? {6'b100011} : {1'b0,i_rd_waddr};
-   assign o_wreg1 = i_trap ? {6'b100010} : {4'b1000,i_csr_addr};
+   reg [1:0] trap_ff = 2'b00;
+   always @(posedge clk) trap_ff <= {trap_ff[0], i_trap};
+   wire trap_d = i_trap || trap_ff[0] || trap_ff[1];
+   assign o_wreg0 = trap_d ? {6'b100011} : {1'b0,i_rd_waddr};
+   assign o_wreg1 = trap_d ? {6'b100010} : {4'b1000,i_csr_addr};
 
    assign       o_wen0 = i_cnt_en & (i_trap | rd_wen);
    assign       o_wen1 = i_cnt_en & (i_trap | i_csr_en);

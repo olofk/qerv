@@ -1,4 +1,4 @@
-module qerv_bufreg2
+module serv_bufreg2
   #(
    parameter BITS_PER_CYCLE = 1,
    parameter LB = $clog2(BITS_PER_CYCLE)
@@ -17,8 +17,6 @@ module qerv_bufreg2
    input wire 	      i_op_b_sel,
    input wire 	      i_shift_op,
    input wire         i_right_shift_op,
-   // i_shift_counter_lsb[LB] is ignored just to support the case of LB=0
-   input wire [LB:0]  i_shift_counter_lsb,
    //Data
    input wire [BITS_PER_CYCLE-1:0] i_rs2,
    input wire [BITS_PER_CYCLE-1:0] i_imm,
@@ -52,7 +50,7 @@ module qerv_bufreg2
    reg decrement_ff = 0;
    wire [5:0] dat_shamt = (decrement) ?
 	      //Down counter mode
-	      (   (i_right_shift_op && !decrement_ff && LB > 0 && i_shift_counter_lsb[LB:0] != 0) ? 
+	      (   (i_right_shift_op && !decrement_ff && LB > 0) ? 
                   // this is just to make a shift for amount not divisible by BITS_PER_CYCLE
                   dat[5:0] : 
                   (dat[5:0]-BITS_PER_CYCLE)
