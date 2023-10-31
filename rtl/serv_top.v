@@ -529,7 +529,7 @@ module qerv_top
       //CSR read port
       .o_csr       (rf_csr_out));
 
-   qerv_mem_if
+   serv_mem_if
      #(.WITH_CSR (WITH_CSR[0:0]),
        .W (W))
    mem_if
