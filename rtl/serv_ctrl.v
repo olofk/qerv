@@ -15,7 +15,6 @@ module qerv_ctrl
    input wire 	     i_cnt0,
    input wire        i_cnt1,
    input wire 	     i_cnt2,
-   input wire 	     i_cnt03,
    //Control
    input wire 	     i_jump,
    input wire 	     i_jal_or_jalr,
@@ -56,7 +55,7 @@ generate
 if (W == 1)
    assign plus_4        = i_iscomp ? i_cnt1 : i_cnt2;
 else if (W == 4)
-   assign plus_4        = (i_cnt03) ? (i_iscomp ? 2 : 4) : 0;
+   assign plus_4        = (i_cnt0 | i_cnt1) ? (i_iscomp ? 2 : 4) : 0;
 endgenerate
 
    assign o_bad_pc = pc_plus_offset_aligned;
@@ -68,7 +67,7 @@ endgenerate
 	 if (W == 1)
 	   assign new_pc = i_trap ? (i_csr_pc & !(i_cnt0 || i_cnt1)) : i_jump ? pc_plus_offset_aligned : pc_plus_4;
          else if (W == 4)
-	   assign new_pc = i_trap ? (i_csr_pc & (i_cnt03 ? 4'b1100 : 4'b1111)) : i_jump ? pc_plus_offset_aligned : pc_plus_4;
+	   assign new_pc = i_trap ? (i_csr_pc & ((i_cnt0 || i_cnt1) ? 4'b1100 : 4'b1111)) : i_jump ? pc_plus_offset_aligned : pc_plus_4;
       end else
 	assign new_pc = i_jump ? pc_plus_offset_aligned : pc_plus_4;
    endgenerate

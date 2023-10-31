@@ -472,7 +472,6 @@ module qerv_top
       .i_cnt0     (cnt0),
       .i_cnt1     (cnt1),
       .i_cnt2     (cnt2),
-      .i_cnt03    (cnt0to3),
       //Control
       .i_jump     (jump),
       .i_jal_or_jalr (jal_or_jalr),
