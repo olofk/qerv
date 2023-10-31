@@ -1,5 +1,5 @@
 `default_nettype none
-module serv_decode
+module qerv_decode
   #(parameter [0:0] PRE_REGISTER = 1,
     parameter [0:0] MDU = 0,
     parameter       CHECK_VALIDITY = 1
