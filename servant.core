@@ -448,7 +448,7 @@ targets:
 
   sim:
     default_tool: icarus
-    filesets : [soc, servant_tb]
+    filesets : [soc, mem_files, servant_tb]
     parameters :
       - RISCV_FORMAL
       - "mdu? (MDU=1)"
@@ -500,7 +500,7 @@ targets:
     toplevel : servant_upduino2
 
   verilator_tb:
-    filesets : [soc, verilator_tb]
+    filesets : [soc, mem_files, verilator_tb]
     flow: sim
     flow_options:
       tool: verilator
@@ -543,6 +543,7 @@ parameters:
 
   firmware:
     datatype : file
+    default: zephyr_hello.hex
     description : Preload RAM with a hex file at runtime (overrides memfile)
     paramtype : plusarg
 
