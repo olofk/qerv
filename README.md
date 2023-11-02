@@ -21,4 +21,4 @@ QERV uses [FuseSoC](https://github.com/olofk/fusesoc) to handle its dependencies
    - QERV `fusesoc library add qerv https://github.com/olofk/qerv`
 4. FuseSoC should be able to see the QERV core. Verify this by running `fusesoc core show qerv`
 5. We can now run a simulation of QERV executing a simple Zephyr application. `fusesoc run --target=verilator_tb servant --uart_baudrate=191000 --timeout=10000000` will launch a simulation using Verilator and printing out a text string twice before exiting. Other firmware can be loaded using the `--firmware` parameter.
-
+6. Synthesizing a minimal version of QERV using Yosys for an iCE40 FPGA can be done with `fusesoc run --target=default --tool=icestorm qerv --pnr=none --WITH_CSR=0`
