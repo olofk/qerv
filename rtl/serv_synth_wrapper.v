@@ -15,7 +15,7 @@ module serv_synth_wrapper
      */
     parameter RESET_STRATEGY = "MINI",
     parameter WITH_CSR = 1,
-    parameter RF_WIDTH = 2,
+    parameter RF_WIDTH = 8,
 	parameter RF_L2D   = $clog2((32+(WITH_CSR*4))*32/RF_WIDTH))
   (
    input wire 		      clk,
@@ -40,6 +40,7 @@ module serv_synth_wrapper
    input wire [RF_WIDTH-1:0]  i_rdata);
 
    localparam CSR_REGS = WITH_CSR*4;
+   localparam W = 4;
 
    wire 	      rf_wreq;
    wire 	      rf_rreq;
@@ -47,17 +48,18 @@ module serv_synth_wrapper
    wire [4+WITH_CSR:0] wreg1;
    wire 	      wen0;
    wire 	      wen1;
-   wire 	      wdata0;
-   wire 	      wdata1;
+   wire [W-1:0]	      wdata0;
+   wire [W-1:0]	      wdata1;
    wire [4+WITH_CSR:0] rreg0;
    wire [4+WITH_CSR:0] rreg1;
    wire 	      rf_ready;
-   wire 	      rdata0;
-   wire 	      rdata1;
+   wire [W-1:0]	      rdata0;
+   wire [W-1:0]	      rdata1;
 
-   serv_rf_ram_if
+   qerv_rf_ram_if
      #(.width    (RF_WIDTH),
        .reset_strategy (RESET_STRATEGY),
+       .BITS_PER_CYCLE (W),
        .csr_regs (CSR_REGS))
    rf_ram_if
      (.i_clk    (clk),
@@ -81,11 +83,12 @@ module serv_synth_wrapper
       .o_raddr  (o_raddr),
       .i_rdata  (i_rdata));
 
-   serv_top
+   qerv_top
      #(.RESET_PC (32'd0),
        .PRE_REGISTER (PRE_REGISTER),
        .RESET_STRATEGY (RESET_STRATEGY),
        .WITH_CSR (WITH_CSR),
+       .W (W),
        .MDU(1'b0))
    cpu
      (
