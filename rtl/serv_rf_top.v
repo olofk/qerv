@@ -87,13 +87,13 @@ module qerv_rf_top
    wire [4+WITH_CSR:0] wreg1;
    wire 	      wen0;
    wire 	      wen1;
-   wire [RF_WIDTH/2-1:0] wdata0;
-   wire [RF_WIDTH/2-1:0] wdata1;
+   wire [W-1:0] wdata0;
+   wire [W-1:0] wdata1;
    wire [4+WITH_CSR:0] rreg0;
    wire [4+WITH_CSR:0] rreg1;
    wire 	      rf_ready;
-   wire [RF_WIDTH/2-1:0] rdata0;
-   wire [RF_WIDTH/2-1:0] rdata1;
+   wire [W-1:0] rdata0;
+   wire [W-1:0] rdata1;
 
    wire [RF_L2D-1:0]   waddr;
    wire [RF_WIDTH-1:0] wdata;

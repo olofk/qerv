@@ -1,7 +1,8 @@
 module qerv_bufreg2
   #(
-   parameter BITS_PER_CYCLE = 1,
-   parameter LB = $clog2(BITS_PER_CYCLE)
+   parameter W = 1,
+   parameter B = W-1,
+   parameter LB = $clog2(W)
   )
   (
    input wire 	      i_clk,
@@ -18,10 +19,10 @@ module qerv_bufreg2
    input wire 	      i_shift_op,
    input wire         i_right_shift_op,
    //Data
-   input wire [BITS_PER_CYCLE-1:0] i_rs2,
-   input wire [BITS_PER_CYCLE-1:0] i_imm,
-   output wire [BITS_PER_CYCLE-1:0] o_op_b,
-   output wire [BITS_PER_CYCLE-1:0] o_q,
+   input wire [B:0] i_rs2,
+   input wire [B:0] i_imm,
+   output wire [B:0] o_op_b,
+   output wire [B:0] o_q,
    output wire [LB:0] o_shift_counter_lsb,
    //External
    output wire [31:0] o_dat,
@@ -51,29 +52,29 @@ module qerv_bufreg2
    wire [5:0] dat_shamt = (decrement) ?
 	      //Down counter mode
 	      (   (i_right_shift_op && !decrement_ff && LB > 0) ? 
-                  // this is just to make a shift for amount not divisible by BITS_PER_CYCLE
+                  // this is just to make a shift for amount not divisible by W
                   dat[5:0] : 
-                  (dat[5:0]-BITS_PER_CYCLE)
+                  (dat[5:0]-W)
               ) :
 	      //Shift reg mode with optional clearing of bit 5
-	      {dat[5+BITS_PER_CYCLE] & !(i_shift_op & i_cnt_done),dat[4+BITS_PER_CYCLE:BITS_PER_CYCLE]};
+	      {dat[5+W] & !(i_shift_op & i_cnt_done),dat[4+W:W]};
 
    assign o_sh_done = dat_shamt[5];
    assign o_sh_done_r = dat[5];
    assign o_shift_counter_lsb = ((1 << LB) - 1) & dat[LB:0]; // clear dat[LB] as a workaround for LB==0 
 
    assign o_q =
-	       ((i_lsb == 2'd3) ? dat[23+BITS_PER_CYCLE:24] :
-	       ((i_lsb == 2'd2) ? dat[15+BITS_PER_CYCLE:16] :
-	       ((i_lsb == 2'd1) ? dat[7+BITS_PER_CYCLE:8] :
-	                          dat[-1+BITS_PER_CYCLE:0])));
+	       ((i_lsb == 2'd3) ? dat[23+W:24] :
+	       ((i_lsb == 2'd2) ? dat[15+W:16] :
+	       ((i_lsb == 2'd1) ? dat[7+W:8] :
+	                          dat[-1+W:0])));
 
    assign o_dat = dat;
 
    always @(posedge i_clk) begin
       decrement_ff <= decrement;
       if (dat_en | i_load)
-	dat <= i_load ? i_dat : {o_op_b, dat[31:6+BITS_PER_CYCLE], dat_shamt}; 
+	dat <= i_load ? i_dat : {o_op_b, dat[31:6+W], dat_shamt}; 
    end
 
 endmodule

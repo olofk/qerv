@@ -4,7 +4,6 @@ module qerv_top
   #(parameter WITH_CSR = 1,
     parameter	    W = 1,
     parameter	    B = W-1,
-    parameter LB = $clog2(W),
     parameter PRE_REGISTER = 1,
     parameter RESET_STRATEGY = "MINI",
     parameter RESET_PC = 32'd0,
@@ -153,6 +152,8 @@ module qerv_top
    wire [1:0] 	 mem_bytecnt;
    wire 	 sh_done;
    wire 	 sh_done_r;
+   wire [$clog2(W):0]  shift_counter_lsb;
+
    wire 	 byte_valid;
 
    wire 	 mem_misalign;
@@ -228,8 +229,7 @@ module qerv_top
        .WITH_CSR (WITH_CSR[0:0]),
        .MDU(MDU),
        .ALIGN(ALIGN),
-       .W(W)
-   )
+       .W(W))
    state
      (
       .i_clk (clk),
@@ -398,12 +398,9 @@ module qerv_top
       .i_wb_rdt     (i_wb_rdt[31:7]));
    endgenerate
 
-   wire [LB:0]  shift_counter_lsb;
-
    qerv_bufreg
       #(.MDU(MDU),
-	.BITS_PER_CYCLE(W)
-      )
+	.W(W))
    bufreg
      (
       .i_clk    (clk),
@@ -430,8 +427,7 @@ module qerv_top
       .o_dbus_adr (o_dbus_adr),
       .o_ext_rs1  (o_ext_rs1));
 
-   qerv_bufreg2#(.BITS_PER_CYCLE(W))
-   bufreg2
+   qerv_bufreg2 #(.W(W)) bufreg2
      (
       .i_clk        (clk),
       //State
@@ -580,11 +576,9 @@ module qerv_top
 
    generate
       if (|WITH_CSR) begin
-	 qerv_csr // TODO: broken completely
-	   #(
-		   .RESET_STRATEGY (RESET_STRATEGY),
-		   .W(W)
-	   )
+	 qerv_csr
+	   #(.RESET_STRATEGY (RESET_STRATEGY),
+	     .W(W))
 	 csr
 	   (
 	    .i_clk        (clk),
