@@ -139,10 +139,9 @@ module qerv_rf_ram_if
 
    generate if (width>BITS_PER_CYCLE*2)
      always @(posedge i_clk) begin
-        // todo: must be broken
-	rdata1 <= {1'b0,rdata1[width-2:1]}; //Optimize?
+  	  rdata1 <= { {BITS_PER_CYCLE{1'b0}}, rdata1[width-BITS_PER_CYCLE-1:BITS_PER_CYCLE]}; //Optimize?
 	if (rtrig1)
-	  rdata1[width-2:0] <= i_rdata[width-1:1];
+      rdata1[width-BITS_PER_CYCLE-1:0] <= i_rdata[width-1:BITS_PER_CYCLE];
      end
    else
      always @(posedge i_clk) if (rtrig1) rdata1 <= i_rdata[BITS_PER_CYCLE * 2 - 1 : BITS_PER_CYCLE];
