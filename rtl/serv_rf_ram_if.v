@@ -131,18 +131,18 @@ module qerv_rf_ram_if
    generate if (width == W * 2) begin : gen_ren_w_eq_2
       assign o_ren = rgate;
    end else begin : gen_ren_w_neq_2
-      assign o_ren = rgate & (rcnt[l2w-1:1] == 0);
+      assign o_ren = rgate & (rcnt[l2w-LB1-1:1] == 0);
    end
    endgenerate
 
    reg 	      rreq_r;
 
-   generate if (width>W*2) begin : gen_rdata1_w_neq_2
+   generate if (width>(W*2)) begin : gen_rdata1_w_neq_2
       always @(posedge i_clk) begin
          // todo: must be broken
-	 rdata1 <= {1'b0,rdata1[width-2:1]}; //Optimize?
+	 rdata1 <= {{W{1'b0}},rdata1[width-W-1:W]}; //Optimize?
 	 if (rtrig1)
-	   rdata1[width-2:0] <= i_rdata[width-1:1];
+	   rdata1[width-W-1:0] <= i_rdata[width-1:W];
       end
    end else begin : gen_rdata1_w_eq_2
       always @(posedge i_clk) if (rtrig1) rdata1 <= i_rdata[W * 2 - 1 : W];
