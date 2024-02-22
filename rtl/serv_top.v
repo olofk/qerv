@@ -503,7 +503,7 @@ module qerv_top
       .i_buf      (bufreg_q),
       .o_rd       (alu_rd));
 
-   qerv_rf_if
+   serv_rf_if
      #(.WITH_CSR (WITH_CSR), .W(W))
    rf_if
      (//RF interface

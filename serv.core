@@ -10,7 +10,6 @@ filesets:
       - rtl/serv_bufreg2.v
       - rtl/serv_decode.v
       - rtl/qerv_immdec.v
-      - rtl/serv_rf_if.v
       - rtl/serv_rf_ram_if.v
       - rtl/serv_top.v
       - rtl/serv_rf_top.v
