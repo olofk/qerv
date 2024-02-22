@@ -3,7 +3,7 @@ module qerv_rf_ram_if
   #(//Data width. Adjust to preferred width of SRAM data interface
     parameter width=8,
 
-    parameter BITS_PER_CYCLE = 1,
+    parameter W = 1,
     //Select reset strategy.
     // "MINI" for resetting minimally required FFs
     // "NONE" for relying on FFs having a defined value on startup
@@ -14,7 +14,7 @@ module qerv_rf_ram_if
     parameter csr_regs=4,
 
     //Internal parameters calculated from above values. Do not change
-    parameter LOG_BITS_PER_CYCLE = $clog2(BITS_PER_CYCLE),
+    parameter B=W-1,
     parameter raw=$clog2(32+csr_regs), //Register address width
     parameter l2w=$clog2(width), //log2 of width
     parameter aw=5+raw-l2w) //Address width
@@ -29,12 +29,12 @@ module qerv_rf_ram_if
    input wire [raw-1:0]	   i_wreg1,
    input wire		   i_wen0,
    input wire		   i_wen1,
-   input wire [BITS_PER_CYCLE-1:0] i_wdata0,
-   input wire [BITS_PER_CYCLE-1:0] i_wdata1,
+   input wire [B:0]	   i_wdata0,
+   input wire [B:0]	   i_wdata1,
    input wire [raw-1:0]	   i_rreg0,
    input wire [raw-1:0]	   i_rreg1,
-   output wire [BITS_PER_CYCLE-1:0] o_rdata0,
-   output wire [BITS_PER_CYCLE-1:0]  o_rdata1,
+   output wire [B:0]	   o_rdata0,
+   output wire [B:0]	   o_rdata1,
    //RAM side
    output wire [aw-1:0]	   o_waddr,
    output wire [width-1:0] o_wdata,
@@ -43,11 +43,9 @@ module qerv_rf_ram_if
    output wire		   o_ren,
    input wire [width-1:0]  i_rdata);
 
-   localparam B  = BITS_PER_CYCLE - 1;
-   localparam LB1 = LOG_BITS_PER_CYCLE;
-   wire [B:0] zeroB = 0;
+   localparam LB1 = $clog2(W);
 
-   reg 				   rgnt = 0;
+   reg 				   rgnt;
    assign o_ready = rgnt | i_wreq;
    reg [4:0] 	  rcnt;
 
@@ -59,7 +57,7 @@ module qerv_rf_ram_if
    wire [4:0] 	     wcnt;
 
    reg [width-1:0]   wdata0_r;
-   reg [width+BITS_PER_CYCLE-1:0]   wdata1_r;
+   reg [width+W-1:0]   wdata1_r;
 
    reg 		     wen0_r;
    reg 		     wen1_r;
@@ -68,10 +66,10 @@ module qerv_rf_ram_if
 
    assign wtrig0 = rtrig1;
 
-   generate if (width == BITS_PER_CYCLE * 2) begin : gen_w_eq_2
+   generate if (width == W*2) begin : gen_w_eq_2
       assign wtrig1 =  wcnt[0];
    end else begin : gen_w_neq_2
-      // todo: must be broken for BITS_PER_CYCLE != 1
+      // todo: must be broken for W != 1
       reg wtrig0_r;
       always @(posedge i_clk) wtrig0_r <= wtrig0;
       assign wtrig1 = wtrig0_r;
@@ -100,8 +98,8 @@ module qerv_rf_ram_if
 	 wen1_r    <= i_wen1;
       end
 
-      wdata0_r  <= {i_wdata0,wdata0_r[width-1:BITS_PER_CYCLE]};
-      wdata1_r  <= {i_wdata1,wdata1_r[width+BITS_PER_CYCLE-1:BITS_PER_CYCLE]};
+      wdata0_r  <= {i_wdata0,wdata0_r[width-1:W]};
+      wdata1_r  <= {i_wdata1,wdata1_r[width+W-1:W]};
 
    end
 
@@ -121,7 +119,7 @@ module qerv_rf_ram_if
    endgenerate
 
    reg [width-1:0]  rdata0;
-   reg [width-1-BITS_PER_CYCLE:0]  rdata1;
+   reg [width-1-W:0]  rdata1;
 
    reg 		    rgate;
 
@@ -130,7 +128,7 @@ module qerv_rf_ram_if
 
    assign rtrig0 = (rcnt[l2w-LB1-1:0] == 1);
 
-   generate if (width == BITS_PER_CYCLE * 2) begin : gen_ren_w_eq_2
+   generate if (width == W * 2) begin : gen_ren_w_eq_2
       assign o_ren = rgate;
    end else begin : gen_ren_w_neq_2
       assign o_ren = rgate & (rcnt[l2w-1:1] == 0);
@@ -139,7 +137,7 @@ module qerv_rf_ram_if
 
    reg 	      rreq_r;
 
-   generate if (width>BITS_PER_CYCLE*2) begin : gen_rdata1_w_neq_2
+   generate if (width>W*2) begin : gen_rdata1_w_neq_2
       always @(posedge i_clk) begin
          // todo: must be broken
 	 rdata1 <= {1'b0,rdata1[width-2:1]}; //Optimize?
@@ -147,7 +145,7 @@ module qerv_rf_ram_if
 	   rdata1[width-2:0] <= i_rdata[width-1:1];
       end
    end else begin : gen_rdata1_w_eq_2
-      always @(posedge i_clk) if (rtrig1) rdata1 <= i_rdata[BITS_PER_CYCLE * 2 - 1 : BITS_PER_CYCLE];
+      always @(posedge i_clk) if (rtrig1) rdata1 <= i_rdata[W * 2 - 1 : W];
    end
    endgenerate
 
@@ -163,7 +161,7 @@ module qerv_rf_ram_if
       rreq_r <= i_rreq;
       rgnt <= rreq_r;
 
-      rdata0 <= {zeroB, rdata0[width-1:BITS_PER_CYCLE]};
+      rdata0 <= {{W{1'b0}}, rdata0[width-1:W]};
       if (rtrig0)
 	rdata0 <= i_rdata;
 

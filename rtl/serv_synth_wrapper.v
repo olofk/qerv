@@ -59,7 +59,7 @@ module serv_synth_wrapper
    qerv_rf_ram_if
      #(.width    (RF_WIDTH),
        .reset_strategy (RESET_STRATEGY),
-       .BITS_PER_CYCLE (W),
+       .W (W),
        .csr_regs (CSR_REGS))
    rf_ram_if
      (.i_clk    (clk),
