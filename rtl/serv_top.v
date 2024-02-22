@@ -576,7 +576,7 @@ module qerv_top
 
    generate
       if (|WITH_CSR) begin
-	 qerv_csr
+	 serv_csr
 	   #(.RESET_STRATEGY (RESET_STRATEGY),
 	     .W(W))
 	 csr
