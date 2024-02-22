@@ -3,6 +3,7 @@ module qerv_rf_ram_if
   #(//Data width. Adjust to preferred width of SRAM data interface
     parameter width=8,
 
+    parameter BITS_PER_CYCLE = 1,
     //Select reset strategy.
     // "MINI" for resetting minimally required FFs
     // "NONE" for relying on FFs having a defined value on startup
@@ -13,12 +14,10 @@ module qerv_rf_ram_if
     parameter csr_regs=4,
 
     //Internal parameters calculated from above values. Do not change
+    parameter LOG_BITS_PER_CYCLE = $clog2(BITS_PER_CYCLE),
     parameter raw=$clog2(32+csr_regs), //Register address width
     parameter l2w=$clog2(width), //log2 of width
-    parameter aw=5+raw-l2w, //Address width
-    parameter BITS_PER_CYCLE = 1,
-    parameter LOG_BITS_PER_CYCLE = $clog2(BITS_PER_CYCLE)
-  ) 
+    parameter aw=5+raw-l2w) //Address width
   (
    //SERV side
    input wire		   i_clk,
@@ -69,9 +68,9 @@ module qerv_rf_ram_if
 
    assign wtrig0 = rtrig1;
 
-   generate if (width == BITS_PER_CYCLE * 2) begin
+   generate if (width == BITS_PER_CYCLE * 2) begin : gen_w_eq_2
       assign wtrig1 =  wcnt[0];
-   end else begin
+   end else begin : gen_w_neq_2
       // todo: must be broken for BITS_PER_CYCLE != 1
       reg wtrig0_r;
       always @(posedge i_clk) wtrig0_r <= wtrig0;
@@ -84,10 +83,11 @@ module qerv_rf_ram_if
 			       wdata0_r;
 
    wire [raw-1:0] wreg  = wtrig1 ? i_wreg1 : i_wreg0;
-   generate if (width == 32)
-     assign o_waddr = wreg;
-   else
-     assign o_waddr = {wreg, wcnt[4-LB1:l2w-LB1]};
+   generate if (width == 32) begin : gen_w_eq_32
+      assign o_waddr = wreg;
+   end else begin : gen_w_neq_32
+      assign o_waddr = {wreg, wcnt[4-LB1:l2w-LB1]};
+   end
    endgenerate
 
    assign o_wen = (wtrig0 & wen0_r) | (wtrig1 & wen1_r);
@@ -113,10 +113,11 @@ module qerv_rf_ram_if
    wire 	  rtrig0;
 
    wire [raw-1:0] rreg = rtrig0 ? i_rreg1 : i_rreg0;
-   generate if (width == 32)
-     assign o_raddr = rreg;
-   else
-     assign o_raddr = {rreg, rcnt[4-LB1:l2w-LB1]};
+   generate if (width == 32) begin : gen_rreg_eq_32
+      assign o_raddr = rreg;
+   end else begin : gen_rreg_neq_32
+      assign o_raddr = {rreg, rcnt[4-LB1:l2w-LB1]};
+   end
    endgenerate
 
    reg [width-1:0]  rdata0;
@@ -129,23 +130,25 @@ module qerv_rf_ram_if
 
    assign rtrig0 = (rcnt[l2w-LB1-1:0] == 1);
 
-   generate if (width == BITS_PER_CYCLE * 2)
-     assign o_ren = rgate;
-   else
-     assign o_ren = rgate & (rcnt[l2w-1:1] == 0);
+   generate if (width == BITS_PER_CYCLE * 2) begin : gen_ren_w_eq_2
+      assign o_ren = rgate;
+   end else begin : gen_ren_w_neq_2
+      assign o_ren = rgate & (rcnt[l2w-1:1] == 0);
+   end
    endgenerate
 
    reg 	      rreq_r;
 
-   generate if (width>BITS_PER_CYCLE*2)
-     always @(posedge i_clk) begin
-        // todo: must be broken
-	rdata1 <= {1'b0,rdata1[width-2:1]}; //Optimize?
-	if (rtrig1)
-	  rdata1[width-2:0] <= i_rdata[width-1:1];
-     end
-   else
-     always @(posedge i_clk) if (rtrig1) rdata1 <= i_rdata[BITS_PER_CYCLE * 2 - 1 : BITS_PER_CYCLE];
+   generate if (width>BITS_PER_CYCLE*2) begin : gen_rdata1_w_neq_2
+      always @(posedge i_clk) begin
+         // todo: must be broken
+	 rdata1 <= {1'b0,rdata1[width-2:1]}; //Optimize?
+	 if (rtrig1)
+	   rdata1[width-2:0] <= i_rdata[width-1:1];
+      end
+   end else begin : gen_rdata1_w_eq_2
+      always @(posedge i_clk) if (rtrig1) rdata1 <= i_rdata[BITS_PER_CYCLE * 2 - 1 : BITS_PER_CYCLE];
+   end
    endgenerate
 
    always @(posedge i_clk) begin

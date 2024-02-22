@@ -48,10 +48,11 @@ module qerv_bufreg #(
 
    wire [B:0] mask;
    generate
-     if (W == 4)
+     if (W == 4) begin : gen_mask_w_4
         assign  mask = 4'b1110;
-     else if (W == 1)
+     end else if (W == 1) begin : gen_mask_w_1
 	assign  mask = 0;
+     end
    endgenerate
 
    assign {c,q} = {1'b0,(i_rs1_en ? i_rs1 : zeroB)} + {1'b0,((i_imm_en) ? (clr_lsb ? (i_imm & mask) : i_imm) : zeroB)} + { zeroB, c_r };
@@ -70,16 +71,17 @@ module qerv_bufreg #(
    end
 
    generate
-    if (W == 1)
+    if (W == 1) begin : gen_lsb_w_1
       always @(posedge i_clk) begin
         if (i_init ? (i_cnt0 | i_cnt1) : i_en)
             lsb <= {i_init ? q : data[2],lsb[1]};
       end
-    else if (W == 4)
+    end else if (W == 4) begin : gen_lsb_w_4
       always @(posedge i_clk) begin
         if (i_en)
             if (i_cnt0) lsb <= q[1:0];
       end
+    end
    endgenerate
 
    assign o_q = i_en ? ((data[B:0] << shift_amount) | next_shifted[2*W-1:W]) : zeroB;

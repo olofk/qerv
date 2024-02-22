@@ -276,7 +276,7 @@ module qerv_decode
    wire co_op_b_source = opcode[3];
 
    generate
-      if (PRE_REGISTER) begin
+      if (PRE_REGISTER) begin : gen_pre_register
 
          always @(posedge clk) begin
             if (i_wb_en) begin
@@ -342,7 +342,7 @@ module qerv_decode
 	    //o_valid_instruction= co_valid_instruction;
          end
 
-      end else begin
+      end else begin : gen_post_register
 
          always @(*) begin
 	    whole   = i_wb_rdt;
