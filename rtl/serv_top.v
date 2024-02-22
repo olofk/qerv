@@ -453,7 +453,7 @@ module qerv_top
       .i_load       (dbus_ack),
       .i_dat        (dbus_rdt));
 
-   qerv_ctrl
+   serv_ctrl
      #(.RESET_PC (RESET_PC),
        .RESET_STRATEGY (RESET_STRATEGY),
        .WITH_CSR (WITH_CSR),
