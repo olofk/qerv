@@ -102,7 +102,7 @@ module qerv_rf_top
    wire 	       ren;
    wire [RF_WIDTH-1:0] rdata;
 
-   qerv_rf_ram_if
+   serv_rf_ram_if
      #(.width    (RF_WIDTH),
        .reset_strategy (RESET_STRATEGY),
        .csr_regs (CSR_REGS),

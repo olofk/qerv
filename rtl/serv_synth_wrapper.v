@@ -56,7 +56,7 @@ module serv_synth_wrapper
    wire [W-1:0]	      rdata0;
    wire [W-1:0]	      rdata1;
 
-   qerv_rf_ram_if
+   serv_rf_ram_if
      #(.width    (RF_WIDTH),
        .reset_strategy (RESET_STRATEGY),
        .W (W),
