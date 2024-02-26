@@ -17,7 +17,6 @@ module qerv_bufreg2
    //Control
    input wire 	      i_op_b_sel,
    input wire 	      i_shift_op,
-   input wire         i_right_shift_op,
    //Data
    input wire [B:0] i_rs2,
    input wire [B:0] i_imm,
@@ -47,34 +46,28 @@ module qerv_bufreg2
             o_sh_done and o_sh_done_r when they wrap around to indicate that
             the requested number of shifts have been performed
     */
-   wire decrement = i_shift_op & !i_init;
-   reg decrement_ff = 0;
-   wire [5:0] dat_shamt = (decrement) ?
+
+   wire [5:0] dat_shamt = (i_shift_op & !i_init) ?
 	      //Down counter mode
-	      (   (i_right_shift_op && !decrement_ff && LB > 0) ? 
-                  // this is just to make a shift for amount not divisible by W
-                  dat[5:0] : 
-                  (dat[5:0]-W)
-              ) :
+              dat[5:0]-W :
 	      //Shift reg mode with optional clearing of bit 5
 	      {dat[5+W] & !(i_shift_op & i_cnt_done),dat[4+W:W]};
 
-   assign o_sh_done = dat_shamt[5];
+   assign o_sh_done = dat[5];
    assign o_sh_done_r = dat[5];
    assign o_shift_counter_lsb = ((1 << LB) - 1) & dat[LB:0]; // clear dat[LB] as a workaround for LB==0 
 
    assign o_q =
-	       ((i_lsb == 2'd3) ? dat[23+W:24] :
-	       ((i_lsb == 2'd2) ? dat[15+W:16] :
-	       ((i_lsb == 2'd1) ? dat[7+W:8] :
-	                          dat[-1+W:0])));
+	       ({W{(i_lsb == 2'd3)}} & dat[23+W:24]) |
+	       ({W{(i_lsb == 2'd2)}} & dat[15+W:16]) |
+	       ({W{(i_lsb == 2'd1)}} & dat[7+W:8])   |
+	       ({W{(i_lsb == 2'd0)}} & dat[-1+W:0]);
 
    assign o_dat = dat;
 
    always @(posedge i_clk) begin
-      decrement_ff <= decrement;
       if (dat_en | i_load)
-	dat <= i_load ? i_dat : {o_op_b, dat[31:6+W], dat_shamt}; 
+	dat <= i_load ? i_dat : {o_op_b, dat[31:6+W], dat_shamt};
    end
 
 endmodule
