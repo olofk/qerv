@@ -11,6 +11,8 @@ module qerv_bufreg #(
    input wire 	      i_en,
    input wire 	      i_init,
    input wire           i_mdu_op,
+   // i_shift_counter_lsb[LB] must be zero to support the case LB=0
+   input wire [LB:0]  i_shift_counter_lsb,
    output wire [1:0]    o_lsb,
    //Control
    input wire 	      i_rs1_en,
@@ -22,8 +24,6 @@ module qerv_bufreg #(
    //Data
    input wire [B:0] i_rs1,
    input wire [B:0] i_imm,
-   // i_shift_counter_lsb[LB] must be zero to support the case LB=0
-   input wire [LB:0]  i_shift_counter_lsb,
    output wire [B:0] o_q,
    //External
    output wire [31:0] o_dbus_adr,
@@ -35,39 +35,39 @@ module qerv_bufreg #(
    wire 	      c;
    wire [B:0] q;
    reg  [2*W-1:0] next_shifted;
-   reg 		      c_r;
+   reg [B:0]	  c_r;
    reg [31:0] 	      data;
    reg [1:0]            lsb;
-   wire [LB:0]      shift_counter_rev = W - i_shift_counter_lsb;
 
-   wire [LB:0] shift_amount = i_shift_op ? (
-       i_right_shift_op ? ((LB == 0) ? 0 : (shift_counter_rev[LB:0])) : i_shift_counter_lsb
-   ) : 0;
+   wire [LB:0] shift_amount = {LB+1{i_shift_op & |LB}} &
+	       (i_right_shift_op ?
+		(W-i_shift_counter_lsb) :
+		i_shift_counter_lsb);
 
-   wire 	      clr_lsb = i_cnt0 & i_clr_lsb;
+   wire [B:0]  clr_lsb;
 
-   wire [B:0] mask;
+   assign clr_lsb[0] = i_cnt0 & i_clr_lsb;
+
    generate
-     if (W == 4) begin : gen_mask_w_4
-        assign  mask = 4'b1110;
-     end else if (W == 1) begin : gen_mask_w_1
-	assign  mask = 0;
+     if (W > 1) begin : gen_clr_lsb_w_gt_1
+        assign  clr_lsb[B:1] = {B{1'b0}};
      end
    endgenerate
 
-   assign {c,q} = {1'b0,(i_rs1_en ? i_rs1 : zeroB)} + {1'b0,((i_imm_en) ? (clr_lsb ? (i_imm & mask) : i_imm) : zeroB)} + { zeroB, c_r };
+   assign {c,q} = {1'b0,(i_rs1 & {W{i_rs1_en}})} + {1'b0,(i_imm & {W{i_imm_en}} & ~clr_lsb)} + c_r;
 
    always @(posedge i_clk) begin
       //Make sure carry is cleared before loading new data
-      c_r <= c & i_en;
+      c_r    <= {W{1'b0}};
+      c_r[0] <= c & i_en;
 
-      if (i_cnt0)
-        next_shifted <= 0;
+      next_shifted <= 0;
       if (i_en)
-              next_shifted <= ({ zeroB, data[B:0]} << shift_amount);
+        next_shifted <= ({ zeroB, data[B:0]} << shift_amount);
 
       if (i_en)
-        data <= {i_init ? q : (i_sh_signed ? {W{data[31]}} : zeroB), data[31:W]};
+        data <= {i_init ? q : {W{i_sh_signed & data[31]}}, data[31:W]};
+
    end
 
    generate
