@@ -285,11 +285,9 @@ module qerv_top
 
    qerv_decode
      #(.PRE_REGISTER (PRE_REGISTER),
-       .MDU(MDU),
+       .MDU(MDU)
 `ifdef RISCV_FORMAL
-       .CHECK_VALIDITY(1)
-`else
-       .CHECK_VALIDITY(0)
+       ,.CHECK_VALIDITY(1)
 `endif
      )
    decode
@@ -442,7 +440,6 @@ module qerv_top
       //Control
       .i_op_b_sel   (op_b_sel),
       .i_shift_op   (shift_op),
-      .i_right_shift_op (sh_right),
       //Data
       .i_rs2        (rs2),
       .i_imm        (imm),

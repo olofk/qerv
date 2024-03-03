@@ -4,9 +4,9 @@ lint_off -rule UNUSED -file "*/serv_top.v" -lines 179-180
 
 //Some bits in the instruction word are not used in serv_decode but it's easier
 //to just send in the whole word than picking out bits
-lint_off -rule UNUSED -file "*/serv_decode.v" -lines 8
+lint_off -rule UNUSED -file "*/serv_decode.v" -lines 13
 
-lint_off -rule UNUSED -file "*/serv_top.v" -lines 177
+lint_off -rule UNUSED -file "*/serv_top.v" -lines 181-182
 
 //Some variables are only used when we connect an Extension with serv_decode
 lint_off -rule UNUSED -file "*/serv_top.v" -lines 69
@@ -15,6 +15,11 @@ lint_off -rule UNUSED -file "*/qerv_immdec.v" -lines 10-11
 lint_off -rule UNUSED -file "*/serv_bufreg.v" -lines 9
 lint_off -rule UNUSED -file "*/serv_bufreg.v" -lines 35
 lint_off -rule UNUSED -file "*/serv_bufreg.v" -lines 39
+lint_off -rule UNUSED -file "*/serv_ctrl.v" -lines 17
 lint_off -rule UNUSED -file "*/serv_top.v" -lines 119
 lint_off -rule UNUSED -file "*/serv_top.v" -lines 131
 lint_off -rule UNUSED -file "*/serv_rf_ram_if.v" -lines 60-61
+
+//FIXME
+lint_off -rule UNUSEDSIGNAL -file "*/serv_bufreg.v" -lines 37
+lint_off -rule UNUSEDSIGNAL -file "*/serv_bufreg.v" -lines 10

@@ -32,7 +32,7 @@ targets:
       - RISCV_FORMAL
       - SERV_CLEAR_RAM
       - "is_toplevel? (WITH_CSR)"
-    toplevel : ["is_toplevel? (serv_rf_top)"]
+    toplevel : ["is_toplevel? (qerv_rf_top)"]
 
   lint:
     default_tool : verilator
@@ -43,7 +43,7 @@ targets:
         verilator_options:
           - "-Wall"
           - "-Wno-DECLFILENAME"
-    toplevel : serv_rf_top
+    toplevel : qerv_rf_top
 
   sky130:
     default_tool : openlane
