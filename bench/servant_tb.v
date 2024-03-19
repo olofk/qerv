@@ -15,7 +15,7 @@ module servant_tb;
 
    vlog_tb_utils vtu();
 
-   uart_decoder #(57600) uart_decoder (q);
+   uart_decoder #(57600*3) uart_decoder (q);
 
    servant_sim
      #(.memfile  (memfile),
