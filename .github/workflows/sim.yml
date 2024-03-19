@@ -20,4 +20,4 @@ jobs:
       - run: fusesoc library add serv https://github.com/olofk/serv
       - run: fusesoc library add $REPO $GITHUB_WORKSPACE/$REPO
       - run: fusesoc run --target=sim --tool=icarus servant --timeout=1000000 --firmware serv/sw/hello_uart.hex > out.log
-      - run: grep "Hi, I'm Pervant!" out.log && grep "Test complete" out.log
+      - run: grep "Hi, I'm Servant!" out.log && grep "Test complete" out.log
