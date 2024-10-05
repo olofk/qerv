@@ -9,7 +9,7 @@ jobs:
       VLNV : qerv
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: qerv
       - run: echo "EDALIZE_LAUNCHER=el_docker" >> $GITHUB_ENV
@@ -18,7 +18,7 @@ jobs:
       - run: fusesoc library add $REPO $GITHUB_WORKSPACE/$REPO
       - run: fusesoc run --build-root=sky130 --target=sky130 $VLNV
       - name: Store artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: serv.gds
           path: /home/runner/work/serv/serv/sky130/sky130-openlane/gds/serv_synth_wrapper.gds

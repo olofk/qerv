@@ -10,7 +10,9 @@ module qerv_decode
   (
    input wire        clk,
    //Input
+   //verilator lint_off UNUSED
    input wire [31:2] i_wb_rdt,
+   //verilator lint_on UNUSED
    input wire        i_wb_en,
    //To state
    output reg       o_sh_right,
@@ -66,8 +68,7 @@ module qerv_decode
    //To RF IF
    output reg       o_rd_mem_en,
    output reg       o_rd_csr_en,
-   output reg       o_rd_alu_en
-   );
+   output reg       o_rd_alu_en);
 
    reg [4:0] opcode;
    reg [2:0] funct3;
@@ -143,7 +144,7 @@ module qerv_decode
    wire co_slt_or_branch = (opcode[4] | (funct3[1] & opcode[2]) | (imm30 & opcode[2] & opcode[3] & ~funct3[2])) & !co_mdu_op;
    wire co_branch_op = opcode[4];
    wire co_dbus_en    = ~opcode[2] & ~opcode[4];
-   wire co_mtval_pc   = opcode[4];   
+   wire co_mtval_pc   = opcode[4];
    wire co_mem_word   = funct3[1];
    wire co_rd_alu_en  = !opcode[0] & opcode[2] & !opcode[4] & !co_mdu_op;
    wire co_rd_mem_en  = (!opcode[2] & !opcode[0]) | co_mdu_op;
@@ -249,7 +250,7 @@ module qerv_decode
    wire co_rd_csr_en = csr_op;
 
    wire co_csr_en         = csr_op & csr_valid;
-   wire co_csr_mstatus_en = csr_op & !op26 & !op22;
+   wire co_csr_mstatus_en = csr_op & !op26 & !op22 & !op20;
    wire co_csr_mie_en     = csr_op & !op26 &  op22 & !op20;
    wire co_csr_mcause_en  = csr_op         &  op21 & !op20;
 

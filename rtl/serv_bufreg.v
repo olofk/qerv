@@ -34,15 +34,19 @@ module qerv_bufreg #(
 
    wire 	      c;
    wire [B:0] q;
+   //verilator lint_off UNUSED
    reg  [2*W-1:0] next_shifted;
+   //verilator lint_on UNUSED
    reg [B:0]	  c_r;
    reg [31:0] 	      data;
    reg [1:0]            lsb;
 
+   // verilator lint_off WIDTH
    wire [LB:0] shift_amount = {LB+1{i_shift_op & |LB}} &
 	       (i_right_shift_op ?
 		(W-i_shift_counter_lsb) :
 		i_shift_counter_lsb);
+   // verilator lint_on WIDTH
 
    wire [B:0]  clr_lsb;
 

@@ -7,16 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout riscv-formal
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: olofk/riscv-formal
       - name: Checkout SERV
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: cores/serv/serv-src
           repository: olofk/serv
       - name: Checkout QERV
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: cores/serv/qerv-src
       - uses: YosysHQ/setup-oss-cad-suite@v2

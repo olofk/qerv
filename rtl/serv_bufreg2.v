@@ -47,11 +47,13 @@ module qerv_bufreg2
             the requested number of shifts have been performed
     */
 
+   // verilator lint_off WIDTH
    wire [5:0] dat_shamt = (i_shift_op & !i_init) ?
 	      //Down counter mode
               dat[5:0]-W :
 	      //Shift reg mode with optional clearing of bit 5
 	      {dat[5+W] & !(i_shift_op & i_cnt_done),dat[4+W:W]};
+   // verilator lint_on WIDTH
 
    assign o_sh_done = dat[5];
    assign o_sh_done_r = dat[5];

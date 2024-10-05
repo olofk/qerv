@@ -1,5 +1,0 @@
-# 12 MHz clock
-set_io i_clk        49
-
-# RS232
-set_io q 61

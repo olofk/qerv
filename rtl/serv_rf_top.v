@@ -6,9 +6,9 @@ module qerv_rf_top
         COMPRESSED=0: Disable the compressed decoder and does not allow the misaligned jump of pc
     */
     parameter [0:0] COMPRESSED = 0,
-    /*  
-      ALIGN = 1: Fetch the aligned instruction by making two bus transactions if the misaligned address 
-      is given to the instruction bus.  
+    /*
+      ALIGN = 1: Fetch the aligned instruction by making two bus transactions if the misaligned address
+      is given to the instruction bus.
     */
     parameter [0:0] ALIGN = COMPRESSED,
     /* Multiplication and Division Unit
@@ -28,7 +28,7 @@ module qerv_rf_top
      */
     parameter RESET_STRATEGY = "MINI",
     parameter WITH_CSR = 1,
-    parameter W        = 4,
+    parameter W        = 1,
     parameter RF_WIDTH = W * 2,
 	parameter RF_L2D   = $clog2((32+(WITH_CSR*4))*32/RF_WIDTH))
   (
@@ -69,7 +69,7 @@ module qerv_rf_top
    output wire 	      o_dbus_cyc,
    input wire [31:0]  i_dbus_rdt,
    input wire 	      i_dbus_ack,
-   
+
    // Extension
    output wire [31:0] o_ext_rs1,
    output wire [31:0] o_ext_rs2,
@@ -78,7 +78,7 @@ module qerv_rf_top
    input  wire        i_ext_ready,
    // MDU
    output wire        o_mdu_valid);
-   
+
    localparam CSR_REGS = WITH_CSR*4;
 
    wire 	      rf_wreq;
@@ -87,13 +87,13 @@ module qerv_rf_top
    wire [4+WITH_CSR:0] wreg1;
    wire 	      wen0;
    wire 	      wen1;
-   wire [W-1:0] wdata0;
-   wire [W-1:0] wdata1;
+   wire [W-1:0]	      wdata0;
+   wire [W-1:0]	      wdata1;
    wire [4+WITH_CSR:0] rreg0;
    wire [4+WITH_CSR:0] rreg1;
    wire 	      rf_ready;
-   wire [W-1:0] rdata0;
-   wire [W-1:0] rdata1;
+   wire [W-1:0]	      rdata0;
+   wire [W-1:0]	      rdata1;
 
    wire [RF_L2D-1:0]   waddr;
    wire [RF_WIDTH-1:0] wdata;
@@ -106,8 +106,7 @@ module qerv_rf_top
      #(.width    (RF_WIDTH),
        .reset_strategy (RESET_STRATEGY),
        .csr_regs (CSR_REGS),
-       .W(W)
-      )
+       .W(W))
    rf_ram_if
      (.i_clk    (clk),
       .i_rst    (i_rst),
@@ -151,8 +150,7 @@ module qerv_rf_top
        .MDU(MDU),
        .COMPRESSED(COMPRESSED),
        .ALIGN(ALIGN),
-       .W(W)
-       )
+       .W(W))
    cpu
      (
       .clk      (clk),
@@ -207,7 +205,7 @@ module qerv_rf_top
       .o_dbus_cyc   (o_dbus_cyc),
       .i_dbus_rdt   (i_dbus_rdt),
       .i_dbus_ack   (i_dbus_ack),
-      
+
       //Extension
       .o_ext_funct3 (o_ext_funct3),
       .i_ext_ready  (i_ext_ready),
