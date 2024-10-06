@@ -1,0 +1,23 @@
+name: Run quick simulations
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Simulation
+    env:
+      REPO : qerv
+      VLNV : qerv
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          path: qerv
+      - run: sudo apt install iverilog
+      - run: pip3 install fusesoc
+      - run: fusesoc library add fusesoc-cores https://github.com/fusesoc/fusesoc-cores
+      - run: fusesoc library add serv https://github.com/olofk/serv
+      - run: fusesoc library add $REPO $GITHUB_WORKSPACE/$REPO
+      - run: fusesoc run --target=sim --tool=icarus servant --width=4 --timeout=2000000 --firmware fusesoc_libraries/serv/sw/hello_uart.hex | tee out.log
+      - run: grep "Hi, I'm Servant!" out.log && grep "Test complete" out.log
