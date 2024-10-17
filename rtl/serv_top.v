@@ -290,13 +290,9 @@ module qerv_top
       .i_rf_ready     (i_rf_ready),
       .o_rf_rd_en     (rd_en));
 
-   qerv_decode
+   serv_decode
      #(.PRE_REGISTER (PRE_REGISTER),
-       .MDU(MDU)
-`ifdef RISCV_FORMAL
-       ,.CHECK_VALIDITY(1)
-`endif
-     )
+       .MDU(MDU))
    decode
      (
       .clk (clk),
