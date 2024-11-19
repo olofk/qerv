@@ -20,9 +20,6 @@ module qerv_immdec
    input wire	     i_wb_en,
    input wire [31:7] i_wb_rdt);
 
-   assign o_csr_imm = 4'd0; // todo: broken
-
-
    reg [4:0]	     rd_addr;
    reg [4:0]	     rs1_addr;
    reg [4:0]	     rs2_addr;
@@ -55,6 +52,13 @@ module qerv_immdec
 
    reg		     i7_2;
    reg		     i20_2;
+
+   wire		     signbit = i31 & !i_csr_imm_en;
+
+   assign o_csr_imm[3] = i18;
+   assign o_csr_imm[2] = i17;
+   assign o_csr_imm[1] = i16;
+   assign o_csr_imm[0] = i15;
 
    assign o_rd_addr  = rd_addr;
    assign o_rs1_addr = rs1_addr;
@@ -106,41 +110,41 @@ module qerv_immdec
 	 //Bit lane 3
 	 i10 <= i27;
 	 i23 <= i27;
-	 i27 <= i_ctrl[2] ? i7 : i_ctrl[1] ? i31 : i20;
-	 i7  <= i31;
+	 i27 <= i_ctrl[2] ? i7 : i_ctrl[1] ? signbit : i20;
+	 i7  <= signbit;
 	 i20 <= i15;
 	 i15 <= i19;
-	 i19 <= i_ctrl[3] ? i31 : i23;
+	 i19 <= i_ctrl[3] ? signbit : i23;
 
 	 //Bit lane 2
 	 i22 <= i26;
 	 i9  <= i26;
 	 i26 <= i30;
-	 i30 <= (i_ctrl[1] | i_ctrl[2]) ? i31 : i14;
+	 i30 <= (i_ctrl[1] | i_ctrl[2]) ? signbit : i14;
 	 i14 <= i18;
-	 i18 <= i_ctrl[3] ? i31 : i22;
+	 i18 <= i_ctrl[3] ? signbit : i22;
 
 	 //Bit lane 1
 	 i21 <= i25;
 	 i8  <= i25;
 	 i25 <= i29;
-	 i29 <= (i_ctrl[1] | i_ctrl[2]) ? i31 : i13;
+	 i29 <= (i_ctrl[1] | i_ctrl[2]) ? signbit : i13;
 	 i13 <= i17;
-	 i17 <= i_ctrl[3] ? i31 : i21;
+	 i17 <= i_ctrl[3] ? signbit : i21;
 
 	 //Bit lane 0
 	 i7_2  <= i11;
 	 i11   <= i28;
 	 i20_2   <= i24;
 	 i24   <= i28;
-	 i28   <= (i_ctrl[1] | i_ctrl[2]) ? i31 : i12;
+	 i28   <= (i_ctrl[1] | i_ctrl[2]) ? signbit : i12;
 	 i12   <= i16;
-	 i16   <= i_ctrl[3] ? i31 : i20_2;
+	 i16   <= i_ctrl[3] ? signbit : i20_2;
 
       end
    end
 
-   assign o_imm[3] = (i_cnt_done ? i31 : (i_ctrl[0] ? i10 : i23));
+   assign o_imm[3] = (i_cnt_done ? signbit : (i_ctrl[0] ? i10 : i23));
    assign o_imm[2] = i_ctrl[0] ? i9 : i22;
    assign o_imm[1] = i_ctrl[0] ? i8 : i21;
    assign o_imm[0] = i_ctrl[0] ? i7_2 : i20_2;
