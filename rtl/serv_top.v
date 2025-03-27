@@ -88,7 +88,6 @@ module qerv_top
    wire 	 ebreak;
    wire 	 branch_op;
    wire 	 shift_op;
-   wire 	 slt_or_branch;
    wire 	 rd_op;
    wire   mdu_op;
 
@@ -154,10 +153,7 @@ module qerv_top
    wire          mem_half;
    wire [1:0] 	 mem_bytecnt;
    wire 	 sh_done;
-   wire 	 sh_done_r;
    wire [$clog2(W):0]  shift_counter_lsb;
-
-   wire 	 byte_valid;
 
    wire 	 mem_misalign;
 
@@ -260,7 +256,6 @@ module qerv_top
       .o_ctrl_trap    (trap),
       .i_ctrl_misalign(lsb[1]),
       .i_sh_done      (sh_done),
-      .i_sh_done_r    (sh_done_r),
       .o_mem_bytecnt  (mem_bytecnt),
       .i_mem_misalign (mem_misalign),
       //Control
@@ -271,7 +266,8 @@ module qerv_top
       .i_branch_op    (branch_op),
       .i_shift_op     (shift_op),
       .i_sh_right     (sh_right),
-      .i_slt_or_branch (slt_or_branch),
+      .i_alu_rd_sel1  (alu_rd_sel[1]),
+      .i_rd_alu_en    (rd_alu_en),
       .i_e_op         (e_op),
       .i_rd_op        (rd_op),
       //MDU
@@ -307,7 +303,6 @@ module qerv_top
       .o_ebreak           (ebreak),
       .o_branch_op        (branch_op),
       .o_shift_op         (shift_op),
-      .o_slt_or_branch    (slt_or_branch),
       .o_rd_op            (rd_op),
       .o_sh_right         (sh_right),
       .o_mdu_op           (mdu_op),
@@ -435,11 +430,12 @@ module qerv_top
       //State
       .i_en         (cnt_en),
       .i_init       (init),
+      .i_cnt7       (cnt7),
       .i_cnt_done   (cnt_done),
+      .i_sh_right   (sh_right),
       .i_lsb        (lsb),
-      .i_byte_valid (byte_valid),
+      .i_bytecnt    (mem_bytecnt),
       .o_sh_done    (sh_done),
-      .o_sh_done_r  (sh_done_r),
       //Control
       .i_op_b_sel   (op_b_sel),
       .i_shift_op   (shift_op),
@@ -562,7 +558,6 @@ module qerv_top
       //State
       .i_bytecnt    (mem_bytecnt),
       .i_lsb        (lsb),
-      .o_byte_valid (byte_valid),
       .o_misalign   (mem_misalign),
       //Control
       .i_mdu_op     (mdu_op),

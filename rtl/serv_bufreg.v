@@ -32,14 +32,14 @@ module qerv_bufreg #(
 
    wire [B:0] zeroB = 0;
 
-   wire 	      c;
-   wire [B:0] q;
+   wire		      c;
+   wire [B:0]	   q;
    //verilator lint_off UNUSED
    reg  [2*W-1:0] next_shifted;
    //verilator lint_on UNUSED
-   reg [B:0]	  c_r;
-   reg [31:0] 	      data;
-   reg [1:0]            lsb;
+   reg [B:0]	      c_r;
+   reg [31:0]	      data;
+   wire [B:0]	      clr_lsb;
 
    // verilator lint_off WIDTH
    wire [LB:0] shift_amount = {LB+1{i_shift_op & |LB}} &
@@ -48,7 +48,6 @@ module qerv_bufreg #(
 		i_shift_counter_lsb);
    // verilator lint_on WIDTH
 
-   wire [B:0]  clr_lsb;
 
    assign clr_lsb[0] = i_cnt0 & i_clr_lsb;
 
@@ -64,26 +63,25 @@ module qerv_bufreg #(
       //Make sure carry is cleared before loading new data
       c_r    <= {W{1'b0}};
       c_r[0] <= c & i_en;
-
-      next_shifted <= 0;
-      if (i_en)
-        next_shifted <= ({ zeroB, data[B:0]} << shift_amount);
-
-      if (i_en)
-        data <= {i_init ? q : {W{i_sh_signed & data[31]}}, data[31:W]};
-
    end
 
+   reg [1:0] lsb;
+
    generate
-    if (W == 1) begin : gen_lsb_w_1
-      always @(posedge i_clk) begin
-        if (i_init ? (i_cnt0 | i_cnt1) : i_en)
+      if (W == 1) begin : gen_w_eq_1
+	 always @(posedge i_clk) begin
+	        if (i_init ? (i_cnt0 | i_cnt1) : i_en)
             lsb <= {i_init ? q : data[2],lsb[1]};
       end
     end else if (W == 4) begin : gen_lsb_w_4
       always @(posedge i_clk) begin
         if (i_en)
             if (i_cnt0) lsb <= q[1:0];
+      if (i_en)
+        data <= {i_init ? q : {W{i_sh_signed & data[31]}}, data[31:W]};
+      next_shifted <= 0;
+      if (i_en)
+        next_shifted <= ({ zeroB, data[B:0]} << shift_amount);
       end
     end
    endgenerate
