@@ -404,6 +404,7 @@ module qerv_top
       //State
       .i_cnt0   (cnt0),
       .i_cnt1   (cnt1),
+      .i_cnt_done (cnt_done),
       .i_en     (bufreg_en),
       .i_init   (init),
       .i_mdu_op (mdu_op),
@@ -443,12 +444,15 @@ module qerv_top
       .i_rs2        (rs2),
       .i_imm        (imm),
       .o_op_b       (op_b),
-      .o_shift_counter_lsb(shift_counter_lsb),
       .o_q          (bufreg2_q),
       //External
       .o_dat        (o_dbus_dat),
       .i_load       (dbus_ack),
       .i_dat        (dbus_rdt));
+
+   localparam LB = $clog2(W);
+
+   assign shift_counter_lsb = ((1 << LB) - 1) & o_dbus_dat[LB+24:24]; // clear dat[LB] as a workaround for LB==0
 
    serv_ctrl
      #(.RESET_PC (RESET_PC),

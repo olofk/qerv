@@ -17,6 +17,7 @@ filesets:
 targets:
   default:
     filesets: [rtl]
+    parameters : [width]
 
   lint:
     description: Run static code checks (linting)
@@ -25,3 +26,9 @@ targets:
     flow_options:
       tool: verilator
     toplevel: servile
+
+parameters:
+  width:
+    datatype    : int
+    description : Interal datapath width (1=SERV, 4=QERV)
+    paramtype   : vlogparam

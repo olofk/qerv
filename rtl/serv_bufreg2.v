@@ -1,9 +1,7 @@
 module qerv_bufreg2
-  #(
-   parameter W = 1,
-   parameter B = W-1,
-   parameter LB = $clog2(W)
-  )
+  #(parameter W = 1,
+    //Internally calculated. Do not touch
+    parameter B=W-1)
   (
    input wire 	      i_clk,
    //State
@@ -23,7 +21,6 @@ module qerv_bufreg2
    input wire [B:0] i_imm,
    output wire [B:0] o_op_b,
    output wire [B:0] o_q,
-   output wire [LB:0] o_shift_counter_lsb,
    //External
    output wire [31:0] o_dat,
    input wire 	      i_load,
@@ -67,16 +64,22 @@ module qerv_bufreg2
             the requested number of shifts have been performed
     */
 
-   // verilator lint_off WIDTH
+   wire [7:0]	 cnt_next;
+   generate
+      if (W == 1) begin : gen_cnt_w_eq_1
+	 assign cnt_next = {o_op_b, dhi[7], dhi[5:0]-6'd1};
+      end else if (W == 4) begin : gen_cnt_w_eq_4
+	 assign cnt_next = {o_op_b[3:2], dhi[5:0]-6'd4};
+      end
+   endgenerate
+
    wire [7:0] dat_shamt = cnt_en ?
 	      //Down counter mode
-	      {o_op_b[3:2], dhi[5:0]-W} :
+	      cnt_next :
 	      //Shift reg mode
 	      {o_op_b, dhi[7:W]};
-   // verilator lint_on WIDTH
 
    assign o_sh_done = dat_shamt[5];
-   assign o_shift_counter_lsb = ((1 << LB) - 1) & o_dat[LB+24:24]; // clear dat[LB] as a workaround for LB==0
 
    assign o_q =
 	       ({W{(i_lsb == 2'd3)}} & o_dat[W+23:24]) |

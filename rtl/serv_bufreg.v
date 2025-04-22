@@ -8,6 +8,7 @@ module qerv_bufreg #(
    //State
    input wire 	      i_cnt0,
    input wire 	      i_cnt1,
+  input wire 	      i_cnt_done,
    input wire 	      i_en,
    input wire 	      i_init,
    input wire           i_mdu_op,
@@ -34,18 +35,15 @@ module qerv_bufreg #(
 
    wire		      c;
    wire [B:0]	   q;
-   //verilator lint_off UNUSED
-   reg  [2*W-1:0] next_shifted;
-   //verilator lint_on UNUSED
    reg [B:0]	      c_r;
    reg [31:0]	      data;
    wire [B:0]	      clr_lsb;
 
    // verilator lint_off WIDTH
-   wire [LB:0] shift_amount = {LB+1{i_shift_op & |LB}} &
-	       (i_right_shift_op ?
-		(W-i_shift_counter_lsb) :
-		i_shift_counter_lsb);
+   wire [LB:0] shift_amount =
+	       !i_shift_op ? 4 :
+	       i_right_shift_op ? (4+i_shift_counter_lsb) :
+	       (W-i_shift_counter_lsb);
    // verilator lint_on WIDTH
 
 
@@ -67,6 +65,8 @@ module qerv_bufreg #(
 
    reg [1:0] lsb;
 
+   wire [B:0] m2;
+   
    generate
       if (W == 1) begin : gen_w_eq_1
 	 always @(posedge i_clk) begin
@@ -79,14 +79,18 @@ module qerv_bufreg #(
             if (i_cnt0) lsb <= q[1:0];
       if (i_en)
         data <= {i_init ? q : {W{i_sh_signed & data[31]}}, data[31:W]};
-      next_shifted <= 0;
-      if (i_en)
-        next_shifted <= ({ zeroB, data[B:0]} << shift_amount);
       end
+	  reg [B:0] data_tail;
+	  always @(posedge i_clk) if (i_en) data_tail <= data[B:0] & {W{~i_cnt_done}};
+	  wire [2*W+B-1:0] muxdata = {data[W+B-1:0],data_tail};
+   // verilator lint_off WIDTH
+	  wire [B:0]	 muxout = muxdata[shift_amount+:W];
+   // verilator lint_on WIDTH
+	  assign m2 = muxout;
     end
    endgenerate
 
-   assign o_q = i_en ? ((data[B:0] << shift_amount) | next_shifted[2*W-1:W]) : zeroB;
+   assign o_q = i_en ? m2 : zeroB;
    assign o_dbus_adr = {data[31:2], 2'b00};
    assign o_ext_rs1  = data;
    assign o_lsb = (MDU & i_mdu_op) ? 2'b00 : lsb;
