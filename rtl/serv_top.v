@@ -425,7 +425,7 @@ module qerv_top
       .o_dbus_adr (o_dbus_adr),
       .o_ext_rs1  (o_ext_rs1));
 
-   qerv_bufreg2 #(.W(W)) bufreg2
+   serv_bufreg2 #(.W(W)) bufreg2
      (
       .i_clk        (clk),
       //State
