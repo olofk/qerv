@@ -394,7 +394,7 @@ module qerv_top
    end
    endgenerate
 
-   qerv_bufreg
+   serv_bufreg
       #(.MDU(MDU),
 	.W(W))
    bufreg

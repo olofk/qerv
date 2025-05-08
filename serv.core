@@ -6,7 +6,6 @@ filesets:
   core:
     files:
       - "tool_verilator? (data/verilator_waiver.vlt)" : {file_type: vlt}
-      - rtl/serv_bufreg.v
       - rtl/qerv_immdec.v
       - rtl/serv_top.v
       - rtl/serv_rf_top.v
