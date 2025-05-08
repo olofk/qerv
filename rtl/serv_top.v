@@ -153,7 +153,6 @@ module qerv_top
    wire          mem_half;
    wire [1:0] 	 mem_bytecnt;
    wire 	 sh_done;
-   wire [$clog2(W):0]  shift_counter_lsb;
 
    wire 	 mem_misalign;
 
@@ -416,10 +415,10 @@ module qerv_top
       .i_clr_lsb   (bufreg_clr_lsb),
       .i_shift_op   (shift_op),
       .i_right_shift_op (sh_right),
+      .i_shamt (o_dbus_dat[26:24]),
       //Data
       .i_rs1    (rs1),
       .i_imm    (imm),
-      .i_shift_counter_lsb(shift_counter_lsb),
       .o_q      (bufreg_q),
       //External
       .o_dbus_adr (o_dbus_adr),
@@ -449,10 +448,6 @@ module qerv_top
       .o_dat        (o_dbus_dat),
       .i_load       (dbus_ack),
       .i_dat        (dbus_rdt));
-
-   localparam LB = $clog2(W);
-
-   assign shift_counter_lsb = ((1 << LB) - 1) & o_dbus_dat[LB+24:24]; // clear dat[LB] as a workaround for LB==0
 
    serv_ctrl
      #(.RESET_PC (RESET_PC),

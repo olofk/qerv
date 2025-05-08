@@ -1,26 +1,24 @@
 module qerv_bufreg #(
       parameter [0:0] MDU = 0,
       parameter W = 1,
-      parameter B = W-1,
-      parameter LB = $clog2(W)
+      parameter B = W-1
 )(
    input wire 	      i_clk,
    //State
    input wire 	      i_cnt0,
    input wire 	      i_cnt1,
-  input wire 	      i_cnt_done,
+   input wire 	      i_cnt_done,
    input wire 	      i_en,
    input wire 	      i_init,
    input wire           i_mdu_op,
-   // i_shift_counter_lsb[LB] must be zero to support the case LB=0
-   input wire [LB:0]  i_shift_counter_lsb,
    output wire [1:0]    o_lsb,
    //Control
    input wire 	      i_rs1_en,
    input wire 	      i_imm_en,
    input wire 	      i_clr_lsb,
-   input wire         i_shift_op,
-   input wire         i_right_shift_op,
+   input wire 	      i_shift_op,
+   input wire 	      i_right_shift_op,
+   input wire [2:0]   i_shamt,
    input wire 	      i_sh_signed,
    //Data
    input wire [B:0] i_rs1,
@@ -31,28 +29,18 @@ module qerv_bufreg #(
    //Extension
    output wire [31:0] o_ext_rs1);
 
-   wire [B:0] zeroB = 0;
-
    wire		      c;
-   wire [B:0]	   q;
+   wire [B:0]	      q;
    reg [B:0]	      c_r;
    reg [31:0]	      data;
    wire [B:0]	      clr_lsb;
 
-   // verilator lint_off WIDTH
-   wire [LB:0] shift_amount =
-	       !i_shift_op ? 4 :
-	       i_right_shift_op ? (4+i_shift_counter_lsb) :
-	       (W-i_shift_counter_lsb);
-   // verilator lint_on WIDTH
-
-
    assign clr_lsb[0] = i_cnt0 & i_clr_lsb;
 
    generate
-     if (W > 1) begin : gen_clr_lsb_w_gt_1
-        assign  clr_lsb[B:1] = {B{1'b0}};
-     end
+      if (W > 1) begin : gen_clr_lsb_w_gt_1
+         assign  clr_lsb[B:1] = {B{1'b0}};
+      end
    endgenerate
 
    assign {c,q} = {1'b0,(i_rs1 & {W{i_rs1_en}})} + {1'b0,(i_imm & {W{i_imm_en}} & ~clr_lsb)} + c_r;
@@ -63,36 +51,46 @@ module qerv_bufreg #(
       c_r[0] <= c & i_en;
    end
 
-   reg [1:0] lsb;
-
-   wire [B:0] m2;
-   
    generate
       if (W == 1) begin : gen_w_eq_1
 	 always @(posedge i_clk) begin
-	        if (i_init ? (i_cnt0 | i_cnt1) : i_en)
-            lsb <= {i_init ? q : data[2],lsb[1]};
+	    if (i_en)
+	      data[31:2] <= {i_init ? q : {W{data[31] & i_sh_signed}}, data[31:3]};
+
+	    if (i_init ? (i_cnt0 | i_cnt1) : i_en)
+	      data[1:0] <= {i_init ? q : data[2], data[1]};
+	 end
+	 assign o_lsb = (MDU & i_mdu_op) ? 2'b00 : data[1:0];
+	 assign o_q = data[0] & {W{i_en}};
+      end else if (W == 4) begin : gen_lsb_w_4
+	 reg [1:0] lsb;
+	 reg [B:0] data_tail;
+
+	 wire [2:0] shift_amount
+	   = !i_shift_op ? 3'd4 :
+	     i_right_shift_op ? (3'd4+{1'b0,i_shamt[1:0]}) :
+	     (3'd4-{1'b0,i_shamt[1:0]});
+
+	 always @(posedge i_clk) begin
+            if (i_en)
+              if (i_cnt0) lsb <= q[1:0];
+	    if (i_en)
+              data <= {i_init ? q : {W{i_sh_signed & data[31]}}, data[31:W]};
+	    if (i_en)
+	      data_tail <= data[B:0] & {W{~i_cnt_done}};
+	 end
+
+	 wire [2*W+B-1:0] muxdata = {data[W+B-1:0],data_tail};
+	 // verilator lint_off WIDTH
+	 wire [B:0]	  muxout = muxdata[shift_amount+:W];
+	 // verilator lint_on WIDTH
+	 assign o_lsb = (MDU & i_mdu_op) ? 2'b00 : lsb;
+	 assign o_q = i_en ? muxout : {W{1'b0}};
       end
-    end else if (W == 4) begin : gen_lsb_w_4
-      always @(posedge i_clk) begin
-        if (i_en)
-            if (i_cnt0) lsb <= q[1:0];
-      if (i_en)
-        data <= {i_init ? q : {W{i_sh_signed & data[31]}}, data[31:W]};
-      end
-	  reg [B:0] data_tail;
-	  always @(posedge i_clk) if (i_en) data_tail <= data[B:0] & {W{~i_cnt_done}};
-	  wire [2*W+B-1:0] muxdata = {data[W+B-1:0],data_tail};
-   // verilator lint_off WIDTH
-	  wire [B:0]	 muxout = muxdata[shift_amount+:W];
-   // verilator lint_on WIDTH
-	  assign m2 = muxout;
-    end
    endgenerate
 
-   assign o_q = i_en ? m2 : zeroB;
+
    assign o_dbus_adr = {data[31:2], 2'b00};
    assign o_ext_rs1  = data;
-   assign o_lsb = (MDU & i_mdu_op) ? 2'b00 : lsb;
 
 endmodule
